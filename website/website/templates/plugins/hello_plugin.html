@@ -1,0 +1,8 @@
+<p class="{{ instance.tag_class }}" style="{{ instance.tag_style }}">
+    {{ instance.welcome }},
+    {% if request.user.is_authenticated %}
+        {{ request.user.first_name }} {{ request.user.last_name}}.
+    {% else %}{{ instance.unnamed_name }}.
+    {% endif %}
+    {{ instance.afterword }}
+</p>

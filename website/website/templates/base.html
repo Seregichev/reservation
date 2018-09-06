@@ -1,0 +1,72 @@
+{% load cms_tags menu_tags sekizai_tags static %}
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>{% block title %}Система бронирования{% endblock title %}</title>
+        <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/sticky-footer-navbar.css' %}">
+        <script type="text/javascript" src="{% static 'jquery/jquery-3.3.1.slim.min.js' %}"></script>
+        {#      <link rel="stylesheet" href="{% static 'font-awesome/css/font-awesome.min.css' %}">#}
+        <style type="text/css">
+            .nav {
+                padding-left: 0;
+            }
+            .nav li {
+                display: inline;
+                list-style-type: none;
+            }
+            .container {
+                width: 940px;
+                margin: 0 auto
+            }
+            .content {
+                float: left;
+                width: 80%;
+            }
+            .sidebar {
+                float: left;
+                width: 20%;
+            }
+        </style>
+        {% render_block "css" %}
+    </head>
+    <body>
+        {% cms_toolbar %}
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <a class="navbar-brand" href="/">Система бронирования</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+              {% show_menu 0 100 100 100 "navigations/nav.html" %}
+            </ul>
+            <form class="form-inline my-2 my-lg-0">
+              <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+          </div>
+        </nav>
+
+        <div class="container">
+            {% static_placeholder "top" %}
+            {% block content %}{% endblock content %}
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                {% static_placeholder "footer" %}
+            </div>
+        </footer>
+        {% render_block "js" %}
+        <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'bootstrap/js/popper.min.js' %}"></script>
+    </body>
+</html>

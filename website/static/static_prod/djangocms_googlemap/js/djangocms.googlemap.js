@@ -1,0 +1,1 @@
+/Users/victor/PycharmProjects/reservation/virtualenv/lib/python3.6/site-packages/djangocms_googlemap/static/djangocms_googlemap/js/djangocms.googlemap.js

@@ -1,0 +1,22 @@
+{% load cms_tags menu_tags cache %}
+
+{% for child in children %}
+    {% if child.children %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="{{ child.attr.redirect_url|default:child.get_absolute_url }}" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {{ child.get_menu_title }}
+            </a>
+            {% if child.children %}
+              <ul>
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  {% show_menu from_level to_level extra_inactive extra_active template "" "" child %}
+                  </div>
+              </ul>
+            {% endif %}
+        </li>
+    {% else %}
+        <li class="nav-link">
+            <a class="nav-link" href="{{ child.attr.redirect_url|default:child.get_absolute_url }}">{{ child.get_menu_title }}</a>
+        </li>
+    {% endif %}
+{% endfor %}

@@ -1,0 +1,87 @@
+{% load i18n cms_tags sekizai_tags static%}
+
+{% addtoblock "css" %}
+   <link rel="stylesheet" href="{% static 'owl.carousel/dist/assets/owl.carousel.min.css' %}">
+{% endaddtoblock %}
+<div class="{{ instance.tag_class }}" style="{{ instance.tag_style }}">
+    <div class="owl-carousel">
+        {% for day_in_this_month, name_month, the_year, num_month in months %}
+            <div>
+                <table class="table-condensed table-striped table-bordered table-sm">
+                    <thead align="center">
+                        <tr>
+                          <th colspan="{% if instance.show_weeks_number %}8{% else %}7{% endif %}">
+                            <a href="" class="h6 font-weight-bold">{{ name_month }} {% if instance.show_year %}{{ the_year }}{% endif %}</a>
+                          </th>
+                        </tr>
+                        <tr>
+                            {% if instance.show_weeks_number %}
+                                <th class="font-weight-light">&nbsp</th>
+                            {% endif %}
+                            {% for name in day_abbr %}
+                                <th class="font-weight-light">{% trans name %}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody align="center">
+                        <tr>
+                            {% for day, day_of_week, number_of_week in day_in_this_month %}
+                                {% if day_of_week == 0 and instance.show_weeks_number %}
+                                    <td class="font-weight-light">
+                                    {{ number_of_week }}
+                                    </td>
+                                {% endif %}
+                                <td class="font-weight-normal">
+                                    {% if day != 0 %}
+                                     <button type="button" style="min-width: 2.3em;" class="btn btn-sm btn-outline-{% if day == today and num_month == 1 %}warning{% endif %}{% if day > today or num_month > 1 %}success{% endif %}{% if day < today and num_month == 1 %}danger{% endif %}"{% if day < today and num_month == 1 %} disabled {% endif %}>
+                                         {{ day }}
+                                     </button>
+                                    {% endif %}
+                                </td>
+                                {% if day_of_week == 6 %}
+                                    </tr>
+                                    <tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    </div>
+    <a class="carousel-control-prev" title="{% trans 'Back' %}" href="#">
+        <img src="{% static 'owl.carousel/img/m-l.png' %}">
+    </a>
+    <a class="carousel-control-next" title="{% trans 'Next' %}" href="#">
+        <img src="{% static 'owl.carousel/img/m-n.png' %}">
+    </a>
+</div>
+{#TODO: Сделать правильное расположение стрелок#}
+
+{% addtoblock "js" %}
+    <script type="text/javascript" src="{% static 'owl.carousel/dist/owl.carousel.min.js' %}"></script>
+{% endaddtoblock %}
+{% addtoblock "js" %}<script type="text/javascript">
+$(document).ready(function () {
+    (function ($) {
+        var owl = $('.owl-carousel');
+
+        owl.owlCarousel({
+            loop:false,
+            margin:20,
+            nav:false,
+            autoWidth:true,
+{#            navText: ["<img src='{% static 'owl.carousel/img/m-l.png' %}'>","<img src='{% static 'owl.carousel/img/m-n.png' %}'>"]#}
+
+        });
+
+        // Custom Navigation Events
+          $(".carousel-control-prev").click(function(){
+            owl.trigger('prev.owl');
+          });
+          $(".carousel-control-next").click(function(){
+             owl.trigger('next.owl');
+          });
+    })(jQuery);
+});
+</script>{% endaddtoblock %}
