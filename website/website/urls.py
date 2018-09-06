@@ -29,6 +29,7 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^sitemap\.xml$', sitemap ,{'sitemaps': {'cmspages': CMSSitemap}}),
     url(r'^jsi18n/$', javascript_catalog, name='javascript-catalog'),
+    url(r'^auth/', include('users.urls')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

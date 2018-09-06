@@ -102,7 +102,3 @@ class HelloPlugin(CMSPluginBase):
     def render(self, context, instance, placeholder):
         context = super(HelloPlugin, self).render(context, instance, placeholder)
         return context
-
-# TODO: Создать модель мастеров и клиентов
-# TODO: Создать модель брони с полями datetime времени начала брони и конца брони, категории брони: заявка, принято, отменено, выполнено, привязка к мастеру и клиенту (если зарегистрирован)
-# TODO: Проверка при добавлении заявки - Если нет начала или конца существующей брони от начала до конца планируемой брони отсортированной в порядке возрастания
