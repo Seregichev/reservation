@@ -4,7 +4,10 @@ from django.contrib.auth.models import User, UserManager
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
+from weekday_field import fields as weekday_field
 
+
+@python_2_unicode_compatible
 class Company(models.Model):
     short_name = models.CharField(max_length=128, blank=True, null=True, default=None,
                                   verbose_name=_('Short name'))
@@ -20,11 +23,13 @@ class Company(models.Model):
         verbose_name = _('Company')
         verbose_name_plural = _('Сompanies')
 
-
+@python_2_unicode_compatible
 class CustomUser(User):
 
-    company = models.ForeignKey(Company, blank=True, null=True, default=None, verbose_name=u"Компания",
+    company = models.ForeignKey(Company, blank=True, null=True, default=None, verbose_name=_('Company'),
                              on_delete=models.CASCADE)
+
+    weekdays = weekday_field.WeekdayField(blank=True, null=True, default=None, verbose_name=_('Weekdays'),)
 
     objects = UserManager()
 
@@ -38,6 +43,8 @@ def create_custom_user(sender, instance, created, **kwargs):
         user.save()
 
 post_save.connect(create_custom_user, User)
+
+# user.objects.filter(username='olga').first().customuser.weekdays[10]
 
 # TODO: Создать модель мастеров и клиентов
 # TODO: Создать модель брони с полями datetime времени начала брони и конца брони, категории брони: заявка, принято, отменено, выполнено, привязка к мастеру и клиенту (если зарегистрирован)

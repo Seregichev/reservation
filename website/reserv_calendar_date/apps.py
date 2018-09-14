@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 from django.apps import AppConfig
+from django.utils.translation import ugettext_lazy as _
 
 
 class ReservCalendarDateConfig(AppConfig):
     name = 'reserv_calendar_date'
-    verbose_name = "Бронирование"
+    verbose_name = _('Reservation')

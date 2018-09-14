@@ -25,7 +25,7 @@
                     </thead>
                     <tbody align="center">
                         <tr>
-                            {% for day, day_of_week, number_of_week in day_in_this_month %}
+                            {% for day, day_of_week, number_of_week, year, month, day in day_in_this_month %}
                                 {% if day_of_week == 0 and instance.show_weeks_number %}
                                     <td class="font-weight-light">
                                     {{ number_of_week }}
@@ -33,7 +33,7 @@
                                 {% endif %}
                                 <td class="font-weight-normal">
                                     {% if day != 0 %}
-                                     <button type="button" style="min-width: 2.3em;" class="btn btn-sm btn-outline-{% if day == today and num_month == 1 %}warning{% endif %}{% if day > today or num_month > 1 %}success{% endif %}{% if day < today and num_month == 1 %}danger{% endif %}"{% if day < today and num_month == 1 %} disabled {% endif %}>
+                                     <button type="button" style="min-width: 2.3em;" data-year='{{ year }}' data-month='{{ month }}' data-day='{{ day }}' class="btn btn-sm btn-outline-{% if day == today and num_month == 1 %}warning{% endif %}{% if day > today or num_month > 1 %}success{% endif %}{% if day < today and num_month == 1 %}danger{% endif %}"{% if day < today and num_month == 1 %} disabled {% endif %}>
                                          {{ day }}
                                      </button>
                                     {% endif %}

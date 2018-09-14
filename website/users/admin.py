@@ -6,6 +6,8 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.forms import UserChangeForm
 from django.utils.translation import ugettext_lazy as _
 from .models import Company, CustomUser
+from weekday_field import fields as weekday_field
+from weekday_field.widgets import ToggleCheckboxes
 
 class CustomUserChangeForm(UserChangeForm):
     u"""Обеспечивает правильный функционал для поля с паролем и показ полей профиля."""
@@ -22,7 +24,8 @@ class CustomUserChangeForm(UserChangeForm):
         model = CustomUser
         fields = '__all__'
 
-class CustomUserAdmin (UserAdmin):
+
+class CustomUserAdmin(UserAdmin):
     form = CustomUserChangeForm
     list_display = ('username', 'last_name', 'first_name',
                     'is_staff', 'is_active')
@@ -31,10 +34,16 @@ class CustomUserAdmin (UserAdmin):
         (_('Personal info'), {'fields': (
                 'first_name', 'last_name', 'email', 'company'
             )}),
+        (_('Work time info'), {'fields': ('weekdays',)}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
         (_('Groups'), {'fields': ('groups',)}),
     )
+
+    formfield_overrides = {
+        weekday_field.WeekdayField: {'widget': ToggleCheckboxes},
+    }
+
 
 admin.site.unregister(User)
 admin.site.register(CustomUser, CustomUserAdmin)
