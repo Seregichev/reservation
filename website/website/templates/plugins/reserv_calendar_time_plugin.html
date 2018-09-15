@@ -4,57 +4,74 @@
    <link rel="stylesheet" href="{% static 'owl.carousel/dist/assets/owl.carousel.min.css' %}">
 {% endaddtoblock %}
 <div class="{{ instance.tag_class }}" style="{{ instance.tag_style }}">
-    <div class="owl-carousel">
-        {% for day_in_this_month, name_month, the_year, num_month in months %}
-            <div>
-                <table class="table-condensed table-striped table-bordered table-sm">
-                    <thead align="center">
-                        <tr>
-                          <th colspan="{% if instance.show_weeks_number %}8{% else %}7{% endif %}">
-                            <a href="" class="h6 font-weight-bold">{{ name_month }} {% if instance.show_year %}{{ the_year }}{% endif %}</a>
-                          </th>
-                        </tr>
-                        <tr>
-                            {% if instance.show_weeks_number %}
-                                <th class="font-weight-light">&nbsp</th>
-                            {% endif %}
-                            {% for name in day_abbr %}
-                                <th class="font-weight-light">{% trans name %}</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody align="center">
-                        <tr>
-                            {% for day, day_of_week, number_of_week, year, month, day in day_in_this_month %}
-                                {% if day_of_week == 0 and instance.show_weeks_number %}
-                                    <td class="font-weight-light">
-                                    {{ number_of_week }}
-                                    </td>
+    <div class="row justify-content-md-center" style="{{ instance.text_style }}">
+        <h6>{{ instance.text_before_calendars }}</h6>
+    </div>
+    <div class="row align-items-center">
+        <div class="col-1">
+            <a class="owl-carousel-control-prev" title="{% trans 'Back' %}">
+                <img src="{% static 'owl.carousel/img/m-l.png' %}">
+            </a>
+        </div>
+        <div class="owl-carousel col-10">
+            {% for day_in_this_month, name_month, the_year, num_month in months %}
+                <div>
+                    <table class="table-condensed table-striped table-bordered table-sm">
+                        <thead align="center">
+                            <tr>
+                              <th colspan="{% if instance.show_weeks_number %}8{% else %}7{% endif %}">
+                                <a href="" class="h6 font-weight-bold">{{ name_month }} {% if instance.show_year %}{{ the_year }}{% endif %}</a>
+                              </th>
+                            </tr>
+                            <tr>
+                                {% if instance.show_weeks_number %}
+                                    <th class="font-weight-light">&nbsp</th>
                                 {% endif %}
-                                <td class="font-weight-normal">
-                                    {% if day != 0 %}
-                                     <button type="button" style="min-width: 2.3em;" data-year='{{ year }}' data-month='{{ month }}' data-day='{{ day }}' class="btn btn-sm btn-outline-{% if day == today and num_month == 1 %}warning{% endif %}{% if day > today or num_month > 1 %}success{% endif %}{% if day < today and num_month == 1 %}danger{% endif %}"{% if day < today and num_month == 1 %} disabled {% endif %}>
-                                         {{ day }}
-                                     </button>
+                                {% for name in day_abbr %}
+                                    <th class="font-weight-light">{% trans name %}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody align="center" data-toggle="buttons">
+                            <tr>
+                                {% for day, day_of_week, number_of_week, date_year, date_month, date_day in day_in_this_month %}
+                                    {% if day_of_week == 0 and instance.show_weeks_number %}
+                                        <td class="font-weight-light">
+                                        {{ number_of_week }}
+                                        </td>
                                     {% endif %}
-                                </td>
-                                {% if day_of_week == 6 %}
-                                    </tr>
-                                    <tr>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                                    <td class="font-weight-normal">
+                                        {% if day > 0 %}
+                                         <button type="button" autocomplete="off" style="min-width: 2.3em;" data-year='{{ date_year }}' data-month='{{ date_month }}' data-day='{{ date_day }}' class="btn btn-sm btn-outline-{% if day == today and num_month == 1 %}warning{% endif %}{% if day > today or num_month > 1 %}success{% endif %}{% if day < today and num_month == 1 %}danger{% endif %}"{% if day < today and num_month == 1 %} disabled {% endif %}>
+                                             {{ day }}
+                                         </button>
+                                        {% endif %}
+                                    </td>
+                                    {% if day_of_week == 6 %}
+                                        </tr>
+                                        <tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col-1">
+            <a class="owl-carousel-control-next" title="{% trans 'Next' %}">
+                <img src="{% static 'owl.carousel/img/m-n.png' %}">
+            </a>
+        </div>
+    </div>
+    <div class="row justify-content-md-center" style="{{ instance.text_style }}">
+        <h6>{{ instance.text_before_time_intervals }}</h6>
+    </div>
+    <div class="row justify-content-md-center">
+        {% for title, start_time_hour, start_time_minute, start_time_second, next_time_hour, next_time_minute, next_time_second in time %}
+                <button type="button" style="margin: 0.5em;" class="col col-md-auto btn btn-outline-primary" data-toggle="button" aria-pressed="false" autocomplete="off" data-start_h="{{ start_time_hour }}" data-start_m="{{ start_time_minute }}" data-start_s="{{ start_time_second }}" data-next_h="{{ next_time_hour }}" data-next_m="{{ next_time_minute }}" data-next_s="{{ next_time_second }}">{{ title }}</button>
         {% endfor %}
     </div>
-    <a class="carousel-control-prev" title="{% trans 'Back' %}" href="#">
-        <img src="{% static 'owl.carousel/img/m-l.png' %}">
-    </a>
-    <a class="carousel-control-next" title="{% trans 'Next' %}" href="#">
-        <img src="{% static 'owl.carousel/img/m-n.png' %}">
-    </a>
 </div>
 {#TODO: Сделать правильное расположение стрелок#}
 
@@ -70,16 +87,19 @@ $(document).ready(function () {
             loop:false,
             margin:20,
             nav:false,
+            rewind: true,
             autoWidth:true,
-{#            navText: ["<img src='{% static 'owl.carousel/img/m-l.png' %}'>","<img src='{% static 'owl.carousel/img/m-n.png' %}'>"]#}
-
+            items:{{ instance.num_of_month }},
+            {% if instance.num_of_month <= 1 %}
+                center: true,
+            {% endif %}
         });
 
         // Custom Navigation Events
-          $(".carousel-control-prev").click(function(){
+          $(".owl-carousel-control-prev").click(function(){
             owl.trigger('prev.owl');
           });
-          $(".carousel-control-next").click(function(){
+          $(".owl-carousel-control-next").click(function(){
              owl.trigger('next.owl');
           });
     })(jQuery);

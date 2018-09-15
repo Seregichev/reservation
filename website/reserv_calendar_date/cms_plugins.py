@@ -5,6 +5,7 @@ from cms.plugin_pool import plugin_pool
 from cms.models import CMSPlugin
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
+from django.core.exceptions import ValidationError
 
 import calendar
 import datetime
@@ -15,15 +16,31 @@ locale.setlocale(locale.LC_NUMERIC, "ru_RU")
 
 
 CHOISES_TIME_DELTA = (
-        (datetime.timedelta(minutes=30), _('30 m')),
-        (datetime.timedelta(hours=1), _('1 h')),
+        (datetime.timedelta(minutes=15), _('15 minutes')),
+        (datetime.timedelta(minutes=30), _('30 minutes')),
+        (datetime.timedelta(minutes=45), _('45 minutes')),
+        (datetime.timedelta(hours=1), _('1 hour')),
+        (datetime.timedelta(hours=2), _('2 hours')),
+        (datetime.timedelta(hours=3), _('3 hours')),
+        (datetime.timedelta(hours=4), _('4 hours')),
+        (datetime.timedelta(hours=5), _('5 hours')),
+        (datetime.timedelta(hours=6), _('6 hours')),
+        (datetime.timedelta(hours=7), _('7 hours')),
+        (datetime.timedelta(hours=8), _('8 hours')),
+        (datetime.timedelta(hours=9), _('9 hours')),
+        (datetime.timedelta(hours=10), _('10 hours')),
     )
 
 # Плагин приветсвия
 @python_2_unicode_compatible
 class Reserv_Calendar_Time_PluginSetting(CMSPlugin):
-    num_of_month = models.IntegerField(_('Number of months together') , default=3, null=True, blank=True)
-    show_weeks_number = models.BooleanField (_('Show number of weeks'), default=False)
+    text_before_calendars = models.CharField(_('Text before calendars'), default=_('1. Select a free day of the month'),
+                                             null=True, blank=True, max_length=256,)
+    text_before_time_intervals = models.CharField(_('Text before time intervals'), default=_('2. Choose your free time'),
+                                             null=True, blank=True, max_length=256,)
+    text_style = models.CharField(_('HTML text style'), max_length=256, null=True, blank=True, default='margin: 1em;')
+    num_of_month = models.IntegerField(_('Number of months to show'), default=3, null=True, blank=True)
+    show_weeks_number = models.BooleanField(_('Show number of weeks'), default=False)
     show_year = models.BooleanField(_('Show year'), default=True)
     busy_time_color = ColorField(_('Color busy time sell'), default='#dc3545', null=True, blank=True)
     free_time_color = ColorField(_('Color free time sell'), default='#28a745', null=True, blank=True)
@@ -39,6 +56,14 @@ class Reserv_Calendar_Time_PluginSetting(CMSPlugin):
     def __str__(self):
         return self.get_title()
 
+    def clean(self):
+        if self.end_time < self.start_time:
+            raise ValidationError(_("Wrong time. The end time can't less the start time."))
+        if self.num_of_month <= 0:
+            raise ValidationError(_("Wrong the number of month. The number have to is more zero"))
+        if self.time_delta < datetime.timedelta(minutes=15):
+            raise ValidationError(_("Wrong the Time Delta. The Time Delta have to is more or equal 15 minutes"))
+
 
 @plugin_pool.register_plugin
 class Reserv_Calendar_Time_Plugin(CMSPluginBase):
@@ -48,15 +73,36 @@ class Reserv_Calendar_Time_Plugin(CMSPluginBase):
     model = Reserv_Calendar_Time_PluginSetting
     render_template = "plugins/reserv_calendar_time_plugin.html"
 
+    fieldsets = (
+        (_('Text:'), {
+            'fields': ('text_before_calendars', 'text_before_time_intervals', 'text_style')
+        }),
+        (_('Show setting:'), {
+            'fields': ('num_of_month', ('show_weeks_number', 'show_year'),)
+        }),
+        (_('Time setting:'), {
+            'fields': (('start_time', 'end_time',),'time_delta',)
+        }),
+        (_('Color setting:'), {
+            'classes': ('collapse',),
+            'fields': ('busy_time_color', 'free_time_color',)
+        }),
+        (_('HTML attributes:'), {
+            'classes': ('collapse',),
+            'fields': ('tag_class', 'tag_style',)
+        }),
+    )
+
     def render(self, context, instance, placeholder):
         context = super(Reserv_Calendar_Time_Plugin, self).render(context, instance, placeholder)
 
         # --- Формирование календаря для вывода во фронтенде ---
         months = ()  # Инициализируем список выборки по месяцам
         start_month = datetime.datetime.now()  # месяц начала вывода равна текущей дате
-        end_month = datetime.datetime.now() + relativedelta(months=+instance.num_of_month)  # месяц конца вывода
+        end_month = datetime.datetime.now() + relativedelta(months=+(instance.num_of_month-1))  # месяц конца вывода
         e = 1  # ватчдог
-        while start_month.month <= end_month.month and e < 100:
+        while start_month <= end_month and e < 100:
+            print(start_month, end_month)
             this_month = calendar.Calendar(firstweekday=0).itermonthdays2(start_month.year, start_month.month)
 
             day_in_this_month = ()  # Инициализируем многомерный список дней в этом месяце
