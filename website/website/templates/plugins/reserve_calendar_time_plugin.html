@@ -42,7 +42,7 @@
                                     {% endif %}
                                     <td class="font-weight-normal">
                                         {% if day > 0 %}
-                                         <button type="button" autocomplete="off" style="min-width: 2.3em;" data-year='{{ date_year }}' data-month='{{ date_month }}' data-day='{{ date_day }}' class="btn btn-sm btn-outline-{% if day == today and num_month == 1 %}warning{% endif %}{% if day > today or num_month > 1 %}success{% endif %}{% if day < today and num_month == 1 %}danger{% endif %}"{% if day < today and num_month == 1 %} disabled {% endif %}>
+                                         <button type="button" autocomplete="off" style="min-width: 2.3em;" data-year='{{ date_year }}' data-month='{{ date_month }}' data-day='{{ date_day }}' class="btn date-btn btn-sm btn-outline-{% if day == today and num_month == 1 %}warning{% endif %}{% if day > today or num_month > 1 %}success{% endif %}{% if day < today and num_month == 1 %}danger{% endif %}"{% if day < today and num_month == 1 %} disabled {% endif %}>
                                              {{ day }}
                                          </button>
                                         {% endif %}
@@ -64,16 +64,17 @@
             </a>
         </div>
     </div>
-    <div class="row justify-content-md-center" style="{{ instance.text_style }}">
-        <h6>{{ instance.text_before_time_intervals }}</h6>
-    </div>
-    <div class="row justify-content-md-center">
-        {% for title, start_time_hour, start_time_minute, start_time_second, next_time_hour, next_time_minute, next_time_second in time %}
-                <button type="button" style="margin: 0.5em;" class="col col-md-auto btn btn-outline-primary" data-toggle="button" aria-pressed="false" autocomplete="off" data-start_h="{{ start_time_hour }}" data-start_m="{{ start_time_minute }}" data-start_s="{{ start_time_second }}" data-next_h="{{ next_time_hour }}" data-next_m="{{ next_time_minute }}" data-next_s="{{ next_time_second }}">{{ title }}</button>
-        {% endfor %}
-    </div>
+    {% if time %}
+        <div class="row justify-content-md-center" style="{{ instance.text_style }}">
+            <h6>{{ instance.text_before_time_intervals }}</h6>
+        </div>
+        <div class="row justify-content-md-center">
+            {% for title, start_time_hour, start_time_minute, start_time_second, next_time_hour, next_time_minute, next_time_second in time %}
+                    <button type="button" style="margin: 0.5em;" class="col col-md-auto btn btn-outline-primary" data-toggle="button" aria-pressed="false" autocomplete="off" data-start_h="{{ start_time_hour }}" data-start_m="{{ start_time_minute }}" data-start_s="{{ start_time_second }}" data-next_h="{{ next_time_hour }}" data-next_m="{{ next_time_minute }}" data-next_s="{{ next_time_second }}">{{ title }}</button>
+            {% endfor %}
+        </div>
+    {% endif %}
 </div>
-{#TODO: Сделать правильное расположение стрелок#}
 
 {% addtoblock "js" %}
     <script type="text/javascript" src="{% static 'owl.carousel/dist/owl.carousel.min.js' %}"></script>
@@ -104,4 +105,12 @@ $(document).ready(function () {
           });
     })(jQuery);
 });
+{% if not instance.allow_choose_several_days %}
+$('.date-btn').click(function(){
+    //Удаление активности у всех активных кнопок
+    $('.active').button('toggle');
+    //Добаляем активность нажатой кнопке
+    $(this).data('toggle','button');
+});
+{% endif %}
 </script>{% endaddtoblock %}

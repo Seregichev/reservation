@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'djangocms_style',
     'djangocms_column',
     'django.contrib.sitemaps',
-    'reserv_calendar_date',
+    'reserve_calendar_date',
     'colorfield',
     'users',
 

@@ -33,6 +33,9 @@ class CustomUser(User):
 
     objects = UserManager()
 
+    def __str__(self):
+        return "%s %s %s %s" % (self.id, self.company, self.first_name, self.last_name)
+
 
 def create_custom_user(sender, instance, created, **kwargs):
     if created:
