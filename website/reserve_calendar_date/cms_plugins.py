@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from .forms import ContactForm
 
 import calendar
 import datetime
@@ -44,6 +45,10 @@ class ReserveCalendarTimePluginSetting(CMSPlugin):
                                              null=True, blank=True, max_length=256,)
     text_before_time_intervals = models.CharField(_('Text before time intervals'), default=_('2. Choose a free time'),
                                              null=True, blank=True, max_length=256,)
+    text_before_forms = models.CharField(_('Text before contact form'), default=_('3. Please, fill the contact form'),
+                                                  null=True, blank=True, max_length=256, )
+    text_submit_button = models.CharField(_('Text submit button'), default=_('Submit'),
+                                                  null=False, blank=True, max_length=64, )
     text_style = models.CharField(_('HTML text style'), max_length=256, null=True, blank=True, default='margin: 1em;')
     num_of_month = models.IntegerField(_('Number of months to show'), default=3, null=True, blank=True)
     show_weeks_number = models.BooleanField(_('Show number of weeks'), default=False)
@@ -88,7 +93,8 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
             'fields': ('masters',),
         }),
         (_('Text:'), {
-            'fields': ('text_before_calendars', 'text_before_time_intervals', 'text_style')
+            'fields': ('text_before_calendars', 'text_before_time_intervals',
+                       'text_before_forms', 'text_submit_button', 'text_style')
         }),
         (_('Show setting:'), {
             'fields': ('num_of_month', ('show_weeks_number', 'show_year'),)
@@ -122,6 +128,15 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
 
     def render(self, context, instance, placeholder):
         context = super(ReserveCalendarTimePlugin, self).render(context, instance, placeholder)
+        form = ContactForm(context['request'].POST or None, auto_id=True,)
+
+        request = context['request']
+        if request.method == 'POST':
+            date = request.POST['date'] or None
+
+            print(datetime.datetime.strptime(date, '%x')) # пример получения даты обратно
+
+            print(request.POST)
 
         # --- Формирование календаря для вывода во фронтенде ---
         months = ()  # Инициализируем список выборки по месяцам
@@ -141,7 +156,7 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
 
                 date = datetime.date(start_month.year, start_month.month, this_day)  # Получаем текущую дату
                 number_of_week = datetime.date(start_month.year, start_month.month, this_day).strftime("%V")
-                day_in_this_month += ((day, day_of_week, number_of_week, date.year, date.month, date.day),)  # и получаем список для дня
+                day_in_this_month += ((day, day_of_week, number_of_week, date.strftime('%x')),)  # и получаем список для дня
 
             name_month = _(start_month.strftime('%B'))  # получаем название текущего месяца в переводе на локаль
             the_year = start_month.year  # Получаем текущий год
@@ -167,10 +182,7 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
                 else:
                     title = start_time.strftime('%H:%M') + '-' + next_time.strftime('%H:%M')
 
-                time += ((title,  # текст периода
-                          start_time.hour, start_time.minute, start_time.second,  # время начала периода
-                          next_time.hour, next_time.minute, next_time.second),)  # время конца периода
-
+                time += ((title, e, start_time, next_time,),)  # текст периода, порядковый номер, время начала и время конца
                 start_time = next_time
                 e += 1
 
@@ -179,9 +191,9 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
         context['months'] = months  # многомерный список для вывода в календарь месяцев
         context['today'] = datetime.datetime.now().day  # текущий день
         context['day_abbr'] = calendar.day_abbr  # абревиатуры дня
-        return context
 
-# TODO: Создать форму бронирования для отправки
+        context['form'] = form # форма для оставления контактов
+        return context
 
 
 # Плагин приветсвия
