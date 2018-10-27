@@ -34,6 +34,27 @@
                 float: left;
                 width: 20%;
             }
+            html {
+              font-size: 1rem;
+            }
+
+            @include media-breakpoint-up(sm) {
+              html {
+                font-size: 1.2rem;
+              }
+            }
+
+            @include media-breakpoint-up(md) {
+              html {
+                font-size: 1.4rem;
+              }
+            }
+
+            @include media-breakpoint-up(lg) {
+              html {
+                font-size: 1.6rem;
+              }
+            }
         </style>
         {% render_block "css" %}
     </head>
@@ -55,12 +76,13 @@
           </div>
         </nav>
 
-        <div class="container">
+        <div class="container-fluid">
             {% static_placeholder "top" %}
         </div>
 
-        <div class="container-fluid">
+        <div class="container">
             {% block content %}{% endblock content %}
+            {% placeholder "content" %}
         </div>
 
         <footer class="footer">

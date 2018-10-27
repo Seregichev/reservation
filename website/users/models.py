@@ -5,7 +5,8 @@ from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
 from weekday_field import fields as weekday_field
-
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 
 @python_2_unicode_compatible
 class Company(models.Model):
@@ -27,7 +28,14 @@ class Company(models.Model):
 class CustomUser(User):
 
     company = models.ForeignKey(Company, blank=True, null=True, default=None, verbose_name=_('Company'),
-                             on_delete=models.CASCADE)
+                             on_delete=models.CASCADE, related_name='company')
+
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$',
+                                 message=_("Phone number must be entered in the format: '+79999999999'. Up to 15 digits allowed."))
+    phone_number = models.CharField(validators=[phone_regex], max_length=17, blank=True, verbose_name=_('Phone number'))
+
+    avatar = models.ImageField(upload_to='avatar_images/', blank=True, null=True, default=None, verbose_name=_('Avatar'),
+                               )
 
     weekdays = weekday_field.WeekdayField(blank=True, null=True, default=None, verbose_name=_('Weekdays'),)
 
@@ -35,6 +43,20 @@ class CustomUser(User):
 
     def __str__(self):
         return "%s %s %s %s" % (self.id, self.company, self.first_name, self.last_name)
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get('avatar', False)
+        if avatar:
+            if avatar._size > 4 * 1024 * 1024:
+                raise ValidationError(_("Image file too large ( > 4mb )"))
+            return avatar
+        else:
+            raise ValidationError(_("Couldn't read uploaded image"))
+
+    def save(self, *args, **kwargs):
+        if not self.avatar:
+            self.avatar = 'avatar_images/noavatar.png'
+        super(CustomUser, self).save(*args, **kwargs)
 
 
 def create_custom_user(sender, instance, created, **kwargs):

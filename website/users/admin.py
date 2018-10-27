@@ -27,17 +27,18 @@ class CustomUserChangeForm(UserChangeForm):
 
 class CustomUserAdmin(UserAdmin):
     form = CustomUserChangeForm
-    list_display = ('username', 'last_name', 'first_name',
+    list_display = ('company', 'username', 'last_name', 'first_name', 'email',
                     'is_staff', 'is_active')
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': (
-                'first_name', 'last_name', 'email', 'company'
+                'first_name', 'last_name', 'email', 'phone_number', 'company'
             )}),
         (_('Work time info'), {'fields': ('weekdays',)}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
-        (_('Groups'), {'fields': ('groups',)}),
+        (None, {'fields': ('groups',)}),
+        (None, {'fields': ('avatar',)}),
     )
 
     formfield_overrides = {

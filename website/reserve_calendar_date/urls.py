@@ -6,5 +6,6 @@ from django.conf.urls import url, include
 from . import views
 
 urlpatterns = [
-    # url(r'^$', views.home, name='home'),
+    url(r'^$', views.ListViewReservation.as_view()),
+    url(r'(?P<pk>\d+)$', views.DetailViewReservation.as_view()),
 ]

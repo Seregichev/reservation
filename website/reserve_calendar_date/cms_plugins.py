@@ -16,6 +16,9 @@ from dateutil.relativedelta import relativedelta
 from colorfield.fields import ColorField
 locale.setlocale(locale.LC_NUMERIC, "ru_RU")
 
+from .models import Reservation
+from .functions import reservation_objects_create
+
 
 CHOICES_TIME_DELTA = (
         (datetime.timedelta(minutes=15), _('15 minutes')),
@@ -67,6 +70,9 @@ class ReserveCalendarTimePluginSetting(CMSPlugin):
 
     def __str__(self):
         return self.get_title()
+
+    def copy_relations(self, oldinstance):
+        self.masters = oldinstance.masters.all()
 
     def clean(self):
         if self.end_time < self.start_time:
@@ -128,15 +134,89 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
 
     def render(self, context, instance, placeholder):
         context = super(ReserveCalendarTimePlugin, self).render(context, instance, placeholder)
-        form = ContactForm(context['request'].POST or None, auto_id=True,)
-
         request = context['request']
-        if request.method == 'POST':
-            date = request.POST['date'] or None
 
-            print(datetime.datetime.strptime(date, '%x')) # пример получения даты обратно
+        inital_name = None
+        inital_phone_number = None
+        inital_email = None
+        error_not_dates = None
+        error_not_time_delta = None
+        if not request.POST and request.user.is_authenticated:
+            inital_name = request.user.first_name
+            inital_phone_number = request.user.phone_number
+            inital_email = request.user.email
 
-            print(request.POST)
+        form = ContactForm(request.POST or None, auto_id=True,
+                           initial={'name': inital_name, 'phone_number': inital_phone_number, 'email': inital_email, })
+
+
+        if request.method == 'POST' and form.is_valid():
+            # Получаем переменные из формы
+            dates = request.POST.getlist('date') or list()
+            time_period = request.POST.getlist('time_period') or list()
+            name = request.POST['name'] or None
+            email = request.POST['email'] or None
+            phone_number = request.POST['phone_number'] or None
+            comment = request.POST['comment'] or None
+            masters = request.POST.getlist('master') or list()
+
+            client = None
+            if request.user.is_authenticated:
+                client = request.user
+
+            if (dates and instance.time_delta >= datetime.timedelta(hours=24)) or (dates and time_period):
+                # Для каждого мастера проходим циклом
+                for master in masters:
+                    master = User.objects.get(username=master)
+                    # client
+                    # product
+                    # price
+                    # comment
+
+                    created = None
+
+                    # Для каждой выбранной даты пользователем проходим циклом
+                    for date in dates:
+
+                        # Определяем дефолтное время начала и время конца
+                        start_time = datetime.datetime.strptime(date + ' ' + str(instance.start_time), '%x %H:%M:%S')
+                        end_time = datetime.datetime.strptime(date + ' ' + str(instance.end_time), '%x %H:%M:%S')
+
+                        # Если пользователь выбрал время начала и конца
+                        if time_period:
+                            # Проходим циклом каждое выбранное пользователем время и создаем резервирование
+                            for time in time_period:
+                                time = time.split(';')
+                                start_time = datetime.datetime.strptime(date + ' ' + time[0], '%x %H:%M')
+                                end_time = datetime.datetime.strptime(date + ' ' + time[1], '%x %H:%M')
+
+                                created = reservation_objects_create(Object=Reservation,
+                                                                     master=master, start_time=start_time,
+                                                                     end_time=end_time, client=client,
+                                                                     client_name = name, client_email = email,
+                                                                     client_phone = phone_number, comment = comment,
+                                                                     )
+
+                        # Иначе создаем резервирование с дефолтным временем начала и конца
+                        else:
+                            created = reservation_objects_create(Object=Reservation,
+                                                                 master=master, start_time=start_time,
+                                                                 end_time=end_time, client=client,
+                                                                 client_name=name, client_email=email,
+                                                                 client_phone=phone_number, comment=comment,
+                                                                 )
+
+                    if created:
+                        print('Reservation is successful created')
+                    else:
+                        print('Reservation is not created')
+
+            else:
+                if not dates:
+                    error_not_dates = _('Please, select a date or dates in the calendar')
+                if not time_period and instance.time_delta < datetime.timedelta(hours=24):
+                    error_not_time_delta = _('Please, select time or times in the panel')
+
 
         # --- Формирование календаря для вывода во фронтенде ---
         months = ()  # Инициализируем список выборки по месяцам
@@ -177,6 +257,9 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
             while start_time < end_time and e < 100:
                 next_time = (datetime.datetime(year=2000,month=1,day=1, hour=start_time.hour, minute=start_time.minute,
                                                second=start_time.second) + instance.time_delta).time()  # следующее время
+                if end_time < next_time:
+                    break
+
                 if (start_time.second):
                     title = start_time.strftime('%H:%M:%S') + '-' + next_time.strftime('%H:%M:%S')
                 else:
@@ -193,6 +276,8 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
         context['day_abbr'] = calendar.day_abbr  # абревиатуры дня
 
         context['form'] = form # форма для оставления контактов
+        context['error_not_dates'] = error_not_dates # поле ошибки ввода даты
+        context['error_not_time_delta'] = error_not_time_delta # поле ошибки ввода временного периода
         return context
 
 

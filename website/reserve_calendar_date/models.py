@@ -5,16 +5,25 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from random import randint
 
 
 @python_2_unicode_compatible
 class Reservation(models.Model):
+
+    number = models.IntegerField(default=randint(1, 999999), unique=True, verbose_name=_('Number Reservation'))
 
     master = models.ForeignKey(User, verbose_name=_('Master'),
                                 on_delete=models.CASCADE, related_name="reserv_master")
 
     client = models.ForeignKey(User, blank=True, null=True, default=None, verbose_name=_('Client'),
                                on_delete=models.CASCADE, related_name="reserv_client")
+
+    client_name = models.CharField(max_length=256, blank=True, null=True, default=None, verbose_name=_('Client Name'))
+
+    client_email = models.CharField(max_length=256, blank=True, null=True, default=None, verbose_name=_('Client Email'))
+
+    client_phone = models.TextField(max_length=64, blank=True, null=True, default=None, verbose_name=_('Client Phone'))
 
     start_time = models.DateTimeField(verbose_name=_('Start time'), help_text=_('Start time for the reservation'),)
 
@@ -27,7 +36,7 @@ class Reservation(models.Model):
 
     price = models.DecimalField(max_digits=64, decimal_places=2, default=0.00, verbose_name=_('Price'))
 
-    comment = models.TextField(max_length=256, blank=True, null=True, default=None)
+    comment = models.TextField(max_length=256, blank=True, null=True, default=None, verbose_name=_('Comment'))
 
     created = models.DateTimeField(auto_now_add=True, auto_now=False, verbose_name=_('Created'))
     updated = models.DateTimeField(auto_now_add=False, auto_now=True, verbose_name=_('Updated'))
@@ -41,6 +50,7 @@ class Reservation(models.Model):
 
     def save(self, *args, **kwargs):
         self.duration_time = self.end_time - self.start_time
+        self.id = self.number
         super(Reservation, self).save(*args, **kwargs)
 
     def clean(self):
@@ -62,3 +72,6 @@ class Reservation(models.Model):
 
         if reservation.filter(start_time__gte=self.start_time, end_time__lte=self.end_time).exists():
             raise ValidationError(_('Wrong time of reservation. Time is busy.'))
+
+    def get_absolute_url(self):
+        return '%s' % self.id
