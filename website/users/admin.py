@@ -27,13 +27,19 @@ class CustomUserChangeForm(UserChangeForm):
 
 class CustomUserAdmin(UserAdmin):
     form = CustomUserChangeForm
-    list_display = ('company', 'username', 'last_name', 'first_name', 'email',
-                    'is_staff', 'is_active')
+    list_display = ('username', 'company', 'last_name', 'first_name', 'email',
+                    'is_staff', 'is_active',)
+    list_display_links = ('username', 'email',)
+    list_editable = ('is_active',)
+    list_filter = ['company__short_name', 'master', 'administrator', 'is_staff', 'is_active',]
+    search_fields = ['username', 'company__name', 'company__short_name', 'last_name', 'first_name', 'email',]
+    empty_value_display = '---'
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': (
                 'first_name', 'last_name', 'email', 'phone_number', 'company'
             )}),
+        (_('Position of job'), {'fields': ('master', 'administrator',)}),
         (_('Work time info'), {'fields': ('weekdays',)}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),

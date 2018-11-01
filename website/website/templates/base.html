@@ -67,7 +67,12 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-              {% show_menu 0 100 100 100 "navigations/nav.html" %}
+                {% show_menu 0 100 100 100 "navigations/nav.html" %}
+                {% if user.is_authenticated %}
+                    <li class="nav-link"><a class="nav-link" href="{% url 'logout_view' %}">Выйти</a></li>
+                {% else %}
+                    <li class="nav-link"><a class="nav-link" href="{% url 'login_view' %}">Войти</a></li>
+                {% endif %}
             </ul>
             <form class="form-inline my-2 my-lg-0">
               <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">

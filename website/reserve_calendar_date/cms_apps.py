@@ -10,5 +10,3 @@ class ViewReservationApphook(CMSApp):
 
     def get_urls(self, page=None, language=None, **kwargs):
         return ["reserve_calendar_date.urls"]
-
-# TODO: Сделать cms_app вывода информации о бронировании по ссылке на рандомный id

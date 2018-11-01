@@ -39,10 +39,22 @@ class CustomUser(User):
 
     weekdays = weekday_field.WeekdayField(blank=True, null=True, default=None, verbose_name=_('Weekdays'),)
 
+    master = models.BooleanField(blank=True, default=False, verbose_name=_('Master'),
+                                 help_text=_('Check if the user can be a master'))
+
+    administrator = models.BooleanField(blank=True, default=False, verbose_name=_('Administrator'),
+                                 help_text=_('Check if the user can be a administrator'))
+
     objects = UserManager()
 
     def __str__(self):
         return "%s %s %s %s" % (self.id, self.company, self.first_name, self.last_name)
+
+    def is_master(self):
+        return self.master
+
+    def is_administrator(self):
+        return self.administrator
 
     def clean_avatar(self):
         avatar = self.cleaned_data.get('avatar', False)

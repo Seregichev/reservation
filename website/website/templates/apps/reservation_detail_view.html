@@ -4,5 +4,5 @@
 
 {% block content %}
     <h1 class="text-center">{% trans "Reservation" %} {{ reservation.number }}</h1>
-
+    <a href="{% url 'view_reservation:delete-reservations' pk=reservation.pk %}" class="btn btn-primary">{% trans "Delete" %}</a>
 {% endblock content %}

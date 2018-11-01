@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from .forms import ContactForm
 
+from django.utils import timezone
 import calendar
 import datetime
 import locale
@@ -220,8 +221,8 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
 
         # --- Формирование календаря для вывода во фронтенде ---
         months = ()  # Инициализируем список выборки по месяцам
-        start_month = datetime.datetime.now()  # месяц начала вывода равна текущей дате
-        end_month = datetime.datetime.now() + relativedelta(months=+(instance.num_of_month-1))  # месяц конца вывода
+        start_month = timezone.now()  # месяц начала вывода равна текущей дате
+        end_month = timezone.now() + relativedelta(months=+(instance.num_of_month-1))  # месяц конца вывода
         e = 1  # ватчдог
         while start_month <= end_month and e < 100:
             print(start_month, end_month)
@@ -272,12 +273,14 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
         # Выводим все полученные данные во фронтенд
         context['time'] = time  # многомерный список для вывода выборки времени
         context['months'] = months  # многомерный список для вывода в календарь месяцев
-        context['today'] = datetime.datetime.now().day  # текущий день
+        context['today'] = timezone.now().day  # текущий день
         context['day_abbr'] = calendar.day_abbr  # абревиатуры дня
 
         context['form'] = form # форма для оставления контактов
         context['error_not_dates'] = error_not_dates # поле ошибки ввода даты
         context['error_not_time_delta'] = error_not_time_delta # поле ошибки ввода временного периода
+
+        print(request.user.get_group_permissions())
         return context
 
 

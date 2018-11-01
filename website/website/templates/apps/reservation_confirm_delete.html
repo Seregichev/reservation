@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load cms_tags staticfiles sekizai_tags menu_tags thumbnail i18n %}
+<title>{% trans "Reservation" %} {{ reservation.number }}</title>
+
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+    <p>{% trans "Are you sure you want to delete" %} "{{ object }}"?</p>
+    <input class='btn btn-primary' type="submit" value="{% trans "Confirm" %}" />
+</form>
+{% endblock content %}
