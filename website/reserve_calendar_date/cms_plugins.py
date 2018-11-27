@@ -280,7 +280,7 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
         context['error_not_dates'] = error_not_dates # поле ошибки ввода даты
         context['error_not_time_delta'] = error_not_time_delta # поле ошибки ввода временного периода
 
-        print(request.user.get_group_permissions())
+
         return context
 
 

@@ -4,5 +4,18 @@
 
 {% block content %}
     <h1 class="text-center">{% trans "Reservation" %} {{ reservation.number }}</h1>
+    <p class="text-center">{% trans "Master" %} {{ reservation.master }}</p>
+    <p class="text-center">{% trans "Client" %}: {{ reservation.client_name }}</p>
+    <p class="text-center">{% trans "Client Name" %}: {{ reservation.client_name }}</p>
+    <p class="text-center">{% trans "Client Email" %}: {{ reservation.client_email }}</p>
+    <p class="text-center">{% trans "Client Phone" %}: {{ reservation.client_phone }}</p>
+    <p class="text-center">{% trans "Start Time" %}: {{ reservation.start_time }}</p>
+    <p class="text-center">{% trans "Duration" %}: {{ reservation.duration_time }}</p>
+    <p class="text-center">{% trans "Product" %}: {{ reservation.product }}</p>
+    <p class="text-center">{% trans "Price" %}: {{ reservation.price }}</p>
+    <p class="text-center">{% trans "Comment" %}: {{ reservation.comment }}</p>
+    <p class="text-center">{% trans "Created" %}: {{ reservation.created }}</p>
+    <p class="text-center">{% trans "Updated" %}: {{ reservation.updated }}</p>
     <a href="{% url 'view_reservation:delete-reservations' pk=reservation.pk %}" class="btn btn-primary">{% trans "Delete" %}</a>
+    <a href="{% url 'view_reservation:update-reservations' pk=reservation.pk %}" class="btn btn-primary">{% trans "Update" %}</a>
 {% endblock content %}

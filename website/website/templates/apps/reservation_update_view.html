@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load cms_tags staticfiles sekizai_tags menu_tags thumbnail i18n %}
+<title>{% trans "Update Reservation" %} {{ reservation.number }}</title>
+
+{% block content %}
+    <h1 class="text-center">{% trans "Update reservation" %} {{ reservation.number }}</h1>
+    <form method="POST" class="post-form">{% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+    </form>
+{% endblock content %}

@@ -7,6 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 class ViewReservationApphook(CMSApp):
     app_name = 'view_reservation'
     name = _('View Reservation')
+    # menus = [MyAppMenu]
+
 
     def get_urls(self, page=None, language=None, **kwargs):
         return ["reserve_calendar_date.urls"]

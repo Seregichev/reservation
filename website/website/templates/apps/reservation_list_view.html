@@ -7,6 +7,7 @@
   <thead>
     <tr>
         <th scope="col">#</th>
+        <th scope="col">{% trans "Status" %}</th>
         <th scope="col">{% trans "Product" %}</th>
         <th scope="col">{% trans "Start time" %}</th>
         <th scope="col">{% trans "End time" %}</th>
@@ -19,12 +20,30 @@
         {% for reservation in reservations %}
         <tr>
             <th scope="row"><a href="{{ reservation.get_absolute_url }}">{{ reservation.number }}</a></th>
+            <td>
+                {% if reservation.status == 'New' %}
+                    <form method="post" action="{% url 'view_reservation:update-status-reservations' pk=reservation.pk %}">{% csrf_token %}
+                        <input class="hidden" type="hidden" name="status" value="Accepted" />
+                        <input class="btn btn-primary" type="submit" value="Accept" />
+                    </form>
+                {% else %}
+                    {{ reservation.status }}
+                {% endif %}
+            </td>
             <td>{{ reservation.product }}</td>
             <td>{{ reservation.start_time }}</td>
             <td>{{ reservation.end_time }}</td>
             {% if user.administrator or user.master %}<td>{{ reservation.client.get_full_name}}</td>
             {% else %}<td>{{ reservation.master.get_full_name }}</td>{% endif %}
             {% if user.administrator %}<td>{{ reservation.master.get_full_name }}</td>{% endif %}
+            <td>
+            {% if ruser.administrator or user.master and reservation.status != 'Canceled' %}
+                <form method="post" action="{% url 'view_reservation:update-status-reservations' pk=reservation.pk %}">{% csrf_token %}
+                    <input class="hidden" type="hidden" name="status" value="Canceled" />
+                    <input class="btn btn-danger" type="submit" value="Cancel" />
+                </form>
+            {% endif %}
+            </td>
         </tr>
         {% endfor %}
   </tbody>

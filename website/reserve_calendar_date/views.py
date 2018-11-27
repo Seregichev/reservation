@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.core.urlresolvers import reverse_lazy
-from django.views.generic import ListView, DetailView, DeleteView
+from django.views.generic import ListView, DetailView, DeleteView, UpdateView, CreateView
 from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
 from .models import Reservation
 from django.utils import timezone
+from .forms import ReservationForm, UpdateStatusForm
 
 
 class ListViewReservation(ListView):
@@ -23,8 +24,10 @@ class ListViewReservation(ListView):
         if self.request.user.administrator:
             if self.request.user.company:
                 reservation_list = Reservation.objects.filter(master__company=self.request.user.company)
-            else:
+            elif self.request.user.is_superuser:
                 reservation_list = Reservation.objects.all()
+            else:
+                reservation_list = None
         elif self.request.user.master:
             reservation_list = Reservation.objects.filter(master=self.request.user)
         else:
@@ -46,14 +49,35 @@ class ListViewReservation(ListView):
         return context
 
 class DetailViewReservation(DetailView):
+    # Детальное отображдение бронирования
     model = Reservation
     template_name = "apps/reservation_detail_view.html"
 
+class CreateViewReservation(CreateView):
+    # Создание записи бронирования
+    form_class = ReservationForm
+    model = Reservation
+    template_name = "apps/reservation_create_view.html"
+    success_url = reverse_lazy('view_reservation:list-reservations')
+
+class UpdateViewReservation(UpdateView):
+    # Обновление информации записи бронирования
+    form_class = ReservationForm
+    model = Reservation
+    template_name = "apps/reservation_update_view.html"
+    success_url = reverse_lazy('view_reservation:list-reservations')
+
+class UpdateStatusReservation(UpdateView):
+    # Обновление статуса записи бронирования
+    form_class = UpdateStatusForm
+    model = Reservation
+    success_url = reverse_lazy('view_reservation:list-reservations')
+
 class DeleteReservation(DeleteView):
+    # Удаление записи бронирования
     model = Reservation
     template_name = "apps/reservation_confirm_delete.html"
-    success_url = reverse_lazy('view_reservation:reservations-list')
+    success_url = reverse_lazy('view_reservation:list-reservations')
 
-# TODO: Сделать CreateView, UpdateView  модели Reservation
-# TODO: Добавить в ListView выпадающий список текущего статуса брони и формы делающую UpdateView
 # TODO: В DetailView сделать возможность редактирования для мастера, удаления для администратора, а для клиента возможность запроса отмены
+# TODO: В ListView сделать возможность фильтрации и выборочной сортировки

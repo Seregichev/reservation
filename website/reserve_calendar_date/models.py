@@ -8,6 +8,16 @@ from django.utils import timezone
 from random import randint
 
 
+STATUS_CHOICES = (
+    ('New', _('New')),  # Необработанная
+    ('Accepted', _('Accepted')),  # Бронь подтверждена
+    ('Done', _('Done')),  # Выполено/Завершено
+    ('Waiting to cancel', _('Waiting to cancel')),  # Ожидание отмены
+    ('Canceled', _('Canceled')),  # Отменено
+    ('Deleted', _('Deleted')),  # Удалено
+)
+
+
 @python_2_unicode_compatible
 class Reservation(models.Model):
 
@@ -38,6 +48,9 @@ class Reservation(models.Model):
 
     comment = models.TextField(max_length=256, blank=True, null=True, default=None, verbose_name=_('Comment'))
 
+    status = models.CharField(choices=STATUS_CHOICES, max_length=32, blank=True, null=True, default='New',
+                                    verbose_name=_('Status'))
+
     created = models.DateTimeField(auto_now_add=True, auto_now=False, verbose_name=_('Created'))
     updated = models.DateTimeField(auto_now_add=False, auto_now=True, verbose_name=_('Updated'))
 
@@ -47,11 +60,13 @@ class Reservation(models.Model):
     class Meta:
         verbose_name = _('Reservation')
         verbose_name_plural = _('Reservations')
+        ordering = ['-start_time']
 
     def save(self, *args, **kwargs):
         self.duration_time = self.end_time - self.start_time
         self.id = self.number
         super(Reservation, self).save(*args, **kwargs)
+
 
     def clean(self):
         if self.end_time < self.start_time:

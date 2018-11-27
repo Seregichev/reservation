@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
+from .models import Reservation
 
 
 class ContactForm (forms.Form):
@@ -56,3 +57,14 @@ class ContactForm (forms.Form):
     #     password = self.cleaned_data.get('password')
     #     user = authenticate(username=username, password=password)
     #     return user
+
+class ReservationForm(forms.ModelForm):
+    class Meta:
+        model = Reservation
+        fields = ['master', 'client_name', 'client_email', 'client_phone', 'start_time', 'end_time', 'product', 'price', 'comment', 'status']
+
+
+class UpdateStatusForm(forms.ModelForm):
+    class Meta:
+        model = Reservation
+        fields = ['status']
