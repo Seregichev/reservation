@@ -7,9 +7,9 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.ListViewReservation.as_view(),  name='list-reservations'),
-    url(r'(?P<pk>\d+)$', views.DetailViewReservation.as_view(), name='detail-reservations'),
+    url(r'^(?P<pk>\d+)$', views.DetailViewReservation.as_view(), name='detail-reservations'),
     url(r'^create/$', views.CreateViewReservation.as_view(), name='create-reservations'),
     url(r'^(?P<pk>\d+)/update_status/', views.UpdateStatusReservation.as_view(), name='update-status-reservations'),
-    url(r'^(?P<pk>\d+)/update/', views.UpdateViewReservation.as_view(), name='update-reservations'),
+    url(r'^(?P<pk>\d+)/update/', views.ChangeViewReservation.as_view(), name='change-reservations'),
     url(r'^(?P<pk>\d+)/delete/', views.DeleteReservation.as_view(), name='delete-reservations'),
 ]

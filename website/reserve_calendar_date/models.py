@@ -63,6 +63,7 @@ class Reservation(models.Model):
         ordering = ['-start_time']
 
     def save(self, *args, **kwargs):
+        self.clean()
         self.duration_time = self.end_time - self.start_time
         self.id = self.number
         super(Reservation, self).save(*args, **kwargs)
@@ -79,14 +80,14 @@ class Reservation(models.Model):
 
         previous_reservation = reservation.filter(start_time__lte=self.start_time).order_by('start_time').reverse().first()
         if previous_reservation and self.start_time < previous_reservation.end_time:
-            raise ValidationError(_('Wrong start time of reservation. Time is busy.'))
+            raise ValidationError(_('Wrong start time of reservation.  Time is busy. ')+str(self.start_time))
 
         next_reservation = reservation.filter(end_time__gte=self.end_time).order_by('end_time').first()
         if next_reservation and self.end_time > next_reservation.start_time:
-            raise ValidationError(_('Wrong end time of reservation. Time is busy.'))
+            raise ValidationError(_('Wrong end time of reservation. Time is busy.')+str(self.end_time))
 
         if reservation.filter(start_time__gte=self.start_time, end_time__lte=self.end_time).exists():
-            raise ValidationError(_('Wrong time of reservation. Time is busy.'))
+            raise ValidationError(_('Wrong time of reservation. Time is busy.')+str(self.start_time))
 
     def get_absolute_url(self):
         return '%s' % self.id

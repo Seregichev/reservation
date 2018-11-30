@@ -4,8 +4,9 @@
 
 {% block content %}
     <h1 class="text-center">{% trans "Reservation" %} {{ reservation.number }}</h1>
+
     <p class="text-center">{% trans "Master" %} {{ reservation.master }}</p>
-    <p class="text-center">{% trans "Client" %}: {{ reservation.client_name }}</p>
+    {% if reservation.client %}<p class="text-center">{% trans "Creater" %}: {{ reservation.client }}</p>{% endif %}
     <p class="text-center">{% trans "Client Name" %}: {{ reservation.client_name }}</p>
     <p class="text-center">{% trans "Client Email" %}: {{ reservation.client_email }}</p>
     <p class="text-center">{% trans "Client Phone" %}: {{ reservation.client_phone }}</p>
@@ -16,6 +17,14 @@
     <p class="text-center">{% trans "Comment" %}: {{ reservation.comment }}</p>
     <p class="text-center">{% trans "Created" %}: {{ reservation.created }}</p>
     <p class="text-center">{% trans "Updated" %}: {{ reservation.updated }}</p>
-    <a href="{% url 'view_reservation:delete-reservations' pk=reservation.pk %}" class="btn btn-primary">{% trans "Delete" %}</a>
-    <a href="{% url 'view_reservation:update-reservations' pk=reservation.pk %}" class="btn btn-primary">{% trans "Update" %}</a>
+    {% if user.administrator %}
+        <a href="{% url 'view_reservation:change-reservations' pk=reservation.pk %}" class="btn btn-primary">{% trans "Change" %}</a>
+        <a href="{% url 'view_reservation:delete-reservations' pk=reservation.pk %}" class="btn btn-danger">{% trans "Delete" %}</a>
+    {% endif %}
+    {% if reservation.status != 'Canceled' %}
+        <form method="post" action="{% url 'view_reservation:update-status-reservations' pk=reservation.pk %}">{% csrf_token %}
+            <input class="hidden" type="hidden" name="status" value="Canceled" />
+            <input class="btn btn-danger" type="submit" value="Cancel" />
+        </form>
+    {% endif %}
 {% endblock content %}

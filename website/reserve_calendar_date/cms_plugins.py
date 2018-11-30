@@ -134,6 +134,9 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
         return super(ReserveCalendarTimePlugin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
     def render(self, context, instance, placeholder):
+        created_errors = []
+        created_list = []
+
         context = super(ReserveCalendarTimePlugin, self).render(context, instance, placeholder)
         request = context['request']
 
@@ -175,6 +178,7 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
                     # comment
 
                     created = None
+                    error = None
 
                     # Для каждой выбранной даты пользователем проходим циклом
                     for date in dates:
@@ -191,26 +195,36 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
                                 start_time = datetime.datetime.strptime(date + ' ' + time[0], '%x %H:%M')
                                 end_time = datetime.datetime.strptime(date + ' ' + time[1], '%x %H:%M')
 
-                                created = reservation_objects_create(Object=Reservation,
+                                start_time = timezone.make_aware(start_time)
+                                end_time = timezone.make_aware(end_time)
+
+                                created, error = reservation_objects_create(Object=Reservation,
                                                                      master=master, start_time=start_time,
                                                                      end_time=end_time, client=client,
                                                                      client_name = name, client_email = email,
                                                                      client_phone = phone_number, comment = comment,
                                                                      )
+                                if created:
+                                    print('Reservation is successful created')
+                                    created_list.append(created)
+                                else:
+                                    print('Reservation is not created')
+                                    created_errors.append(error)
 
                         # Иначе создаем резервирование с дефолтным временем начала и конца
                         else:
-                            created = reservation_objects_create(Object=Reservation,
+                            created, error = reservation_objects_create(Object=Reservation,
                                                                  master=master, start_time=start_time,
                                                                  end_time=end_time, client=client,
                                                                  client_name=name, client_email=email,
                                                                  client_phone=phone_number, comment=comment,
                                                                  )
-
-                    if created:
-                        print('Reservation is successful created')
-                    else:
-                        print('Reservation is not created')
+                            if created:
+                                print('Reservation is successful created')
+                                created_list.append(created)
+                            else:
+                                print('Reservation is not created')
+                                created_errors.append(error)
 
             else:
                 if not dates:
@@ -225,7 +239,6 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
         end_month = timezone.now() + relativedelta(months=+(instance.num_of_month-1))  # месяц конца вывода
         e = 1  # ватчдог
         while start_month <= end_month and e < 100:
-            print(start_month, end_month)
             this_month = calendar.Calendar(firstweekday=0).itermonthdays2(start_month.year, start_month.month)
 
             day_in_this_month = ()  # Инициализируем многомерный список дней в этом месяце
@@ -279,6 +292,9 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
         context['form'] = form # форма для оставления контактов
         context['error_not_dates'] = error_not_dates # поле ошибки ввода даты
         context['error_not_time_delta'] = error_not_time_delta # поле ошибки ввода временного периода
+
+        context['created_list'] = created_list
+        context['created_errors'] = created_errors
 
 
         return context

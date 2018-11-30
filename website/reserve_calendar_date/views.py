@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.exceptions import FieldError
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import ListView, DetailView, DeleteView, UpdateView, CreateView
 from django.core.paginator import Paginator
@@ -6,17 +7,16 @@ from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
 from .models import Reservation
 from django.utils import timezone
-from .forms import ReservationForm, UpdateStatusForm
+from .forms import ReservationForm, UpdateStatusForm, DetailForm
 
 
 class ListViewReservation(ListView):
     model = Reservation
     template_name = "apps/reservation_list_view.html"
     context_object_name = 'reservations'
-    paginate_by = 10
-
-    def get_paginate_by(self, queryset):
-        return self.request.GET.get('paginate_by', self.paginate_by)
+    # paginate_by = 10
+    # def get_paginate_by(self, queryset):
+    #     return self.request.GET.get('paginate_by', self.paginate_by)
 
     def get_context_data(self, **kwargs):
         context = super(ListViewReservation, self).get_context_data(**kwargs)
@@ -33,25 +33,31 @@ class ListViewReservation(ListView):
         else:
             reservation_list = Reservation.objects.filter(client=self.request.user)
 
-        reservation_list = reservation_list.order_by('start_time').exclude(end_time__lt=timezone.now())
-        paginator = Paginator(reservation_list, self.paginate_by, orphans=3, allow_empty_first_page=True)
+        ordering = self.request.GET.get('ordering', 'start_time')
+        reservation_list = reservation_list.order_by(ordering)
 
-        page = self.request.GET.get('page')
+        reservation_list = reservation_list.exclude(end_time__lt=timezone.now())
 
-        try:
-            reservation_list = paginator.page(page)
-        except PageNotAnInteger:
-            reservation_list = paginator.page(1)
-        except EmptyPage:
-            reservation_list = paginator.page(paginator.num_pages)
+        # paginator = Paginator(reservation_list, self.paginate_by, orphans=3, allow_empty_first_page=True)
+        #
+        # page = self.request.GET.get('page')
+        #
+        # try:
+        #     reservation_list = paginator.page(page)
+        # except PageNotAnInteger:
+        #     reservation_list = paginator.page(1)
+        # except EmptyPage:
+        #     reservation_list = paginator.page(paginator.num_pages)
 
         context['reservations'] = reservation_list
         return context
+
 
 class DetailViewReservation(DetailView):
     # Детальное отображдение бронирования
     model = Reservation
     template_name = "apps/reservation_detail_view.html"
+
 
 class CreateViewReservation(CreateView):
     # Создание записи бронирования
@@ -60,12 +66,14 @@ class CreateViewReservation(CreateView):
     template_name = "apps/reservation_create_view.html"
     success_url = reverse_lazy('view_reservation:list-reservations')
 
-class UpdateViewReservation(UpdateView):
+
+class ChangeViewReservation(UpdateView):
     # Обновление информации записи бронирования
     form_class = ReservationForm
     model = Reservation
-    template_name = "apps/reservation_update_view.html"
+    template_name = "apps/reservation_change_view.html"
     success_url = reverse_lazy('view_reservation:list-reservations')
+
 
 class UpdateStatusReservation(UpdateView):
     # Обновление статуса записи бронирования
@@ -73,11 +81,9 @@ class UpdateStatusReservation(UpdateView):
     model = Reservation
     success_url = reverse_lazy('view_reservation:list-reservations')
 
+
 class DeleteReservation(DeleteView):
     # Удаление записи бронирования
     model = Reservation
     template_name = "apps/reservation_confirm_delete.html"
     success_url = reverse_lazy('view_reservation:list-reservations')
-
-# TODO: В DetailView сделать возможность редактирования для мастера, удаления для администратора, а для клиента возможность запроса отмены
-# TODO: В ListView сделать возможность фильтрации и выборочной сортировки

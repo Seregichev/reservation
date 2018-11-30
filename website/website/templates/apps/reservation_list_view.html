@@ -2,65 +2,116 @@
 {% load cms_tags staticfiles sekizai_tags menu_tags thumbnail i18n %}
 
 {% block content %}
-<h1 class="text-center">{% page_attribute "page_title" %}</h1>
-<table class="table table-hover">
-  <thead>
-    <tr>
-        <th scope="col">#</th>
-        <th scope="col">{% trans "Status" %}</th>
-        <th scope="col">{% trans "Product" %}</th>
-        <th scope="col">{% trans "Start time" %}</th>
-        <th scope="col">{% trans "End time" %}</th>
-        {% if user.administrator or user.master %}<th scope="col">{% trans "Client" %}</th>
-        {% else %}<th scope="col">{% trans "Master" %}</th>{% endif %}
-        {% if user.administrator %}<th scope="col">{% trans "Master" %}</th>{% endif %}
-    </tr>
-  </thead>
-  <tbody>
-        {% for reservation in reservations %}
-        <tr>
-            <th scope="row"><a href="{{ reservation.get_absolute_url }}">{{ reservation.number }}</a></th>
-            <td>
-                {% if reservation.status == 'New' %}
-                    <form method="post" action="{% url 'view_reservation:update-status-reservations' pk=reservation.pk %}">{% csrf_token %}
-                        <input class="hidden" type="hidden" name="status" value="Accepted" />
-                        <input class="btn btn-primary" type="submit" value="Accept" />
-                    </form>
-                {% else %}
-                    {{ reservation.status }}
-                {% endif %}
-            </td>
-            <td>{{ reservation.product }}</td>
-            <td>{{ reservation.start_time }}</td>
-            <td>{{ reservation.end_time }}</td>
-            {% if user.administrator or user.master %}<td>{{ reservation.client.get_full_name}}</td>
-            {% else %}<td>{{ reservation.master.get_full_name }}</td>{% endif %}
-            {% if user.administrator %}<td>{{ reservation.master.get_full_name }}</td>{% endif %}
-            <td>
-            {% if ruser.administrator or user.master and reservation.status != 'Canceled' %}
-                <form method="post" action="{% url 'view_reservation:update-status-reservations' pk=reservation.pk %}">{% csrf_token %}
-                    <input class="hidden" type="hidden" name="status" value="Canceled" />
-                    <input class="btn btn-danger" type="submit" value="Cancel" />
-                </form>
-            {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-  </tbody>
-</table>
-{% if reservations.paginator.num_pages > 1 %}
-    <nav aria-label="Page navigation">
-      <ul class="pagination justify-content-center">
-        <li class="page-item {% if not reservations.has_previous %}disabled{% endif %}">
-          <a class="page-link" href="{{ request.path }}?page={% if reservations.has_previous %}{{ reservations.previous_page_number }}{% else %}1{% endif %}"><span aria-hidden="true">&laquo;</span><span class="sr-only">{% trans "Previous" %}</span></a>
-        </li>
-        {% for page in reservations.paginator.page_range %}
-            <li class="page-item {% if reservations.number == page %}active{% endif %}"><a class="page-link" href="{{ request.path }}?page={{ page }}">{{ page }}</a></li>
-        {% endfor %}
-        <li class="page-item {% if not reservations.has_next %}disabled{% endif %}">
-          <a class="page-link" href="{{ request.path }}?page={% if reservations.has_next %}{{ reservations.next_page_number }}{% else %}{{ reservations.paginator.num_pages }}{% endif %}"><span aria-hidden="true">&raquo;</span><span class="sr-only">{% trans "Next" %}</span></a>
-        </li>
-      </ul>
-    </nav>
-{% endif %}
+        {% addtoblock "css" %}
+        <link rel='stylesheet' href='{% static 'fullcalendar/fullcalendar.min.css' %}' />
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css">
+        {% endaddtoblock %}
+        {% addtoblock "js" %}
+        <script type="text/javascript" src="{% static 'fullcalendar/lib/moment.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'fullcalendar/fullcalendar.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'fullcalendar/locale/ru.js' %}"></script>
+        {% endaddtoblock %}
+        {% addtoblock "js" %}
+            <script>
+             $(document).ready(function() {
+                $('#calendar').fullCalendar({
+                    locale: 'ru',
+                    themeSystem: 'bootstrap4',
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'month,agendaWeek,agendaDay,listMonth'
+                    },
+                    weekNumbers: true,
+                    navLinks: true, // can click day/week names to navigate views
+                    editable: false,
+                    eventLimit: true, // allow "more" link when too many events
+                    events: [
+                      {% for reservation in reservations %}
+                        {
+                            title: "{{ reservation.client_name}}",
+                            url: '{{ reservation.get_absolute_url }}',
+                            start: '{{ reservation.start_time|date:"Y-m-d H:i:s" }}',
+                            end: '{{ reservation.end_time|date:"Y-m-d H:i:s" }}'
+                        },
+                      {% endfor %}
+                    ]
+                });
+
+              });
+            </script>
+        {% endaddtoblock %}
+
+    <h1 class="text-center">{% page_attribute "page_title" %}</h1>
+
+    <div id='calendar'></div>
+
+
+    {#<table class="table table-hover">#}
+    {#  <thead>#}
+    {#    <tr>#}
+    {#        <th scope="col">#</th>#}
+    {#        <th scope="col" class="sorting_asc">{% trans "Status" %}</th>#}
+    {#        <th scope="col">{% trans "Product" %}</th>#}
+    {#        <th scope="col">{% trans "Start time" %}</th>#}
+    {#        <th scope="col">{% trans "End time" %}</th>#}
+    {#        {% if user.administrator or user.master %}<th scope="col">{% trans "Client" %}</th>#}
+    {#        {% else %}<th scope="col">{% trans "Master" %}</th>{% endif %}#}
+    {#        {% if user.administrator %}<th scope="col">{% trans "Master" %}</th>{% endif %}#}
+    {#    </tr>#}
+    {#  </thead>#}
+    {#  <tbody>#}
+    {#        {% for reservation in reservations %}#}
+    {#        <tr>#}
+    {#            <th scope="row"><a href="{{ reservation.get_absolute_url }}">{{ reservation.number }}</a></th>#}
+    {#            <td>#}
+    {#                {% if reservation.status == 'New' %}#}
+    {#                    <form method="post" action="{% url 'view_reservation:update-status-reservations' pk=reservation.pk %}">{% csrf_token %}#}
+    {#                        <input class="hidden" type="hidden" name="status" value="Accepted" />#}
+    {#                        <input class="btn btn-primary" type="submit" value="Accept" />#}
+    {#                    </form>#}
+    {#                {% else %}#}
+    {#                    {{ reservation.status }}#}
+    {#                {% endif %}#}
+    {#            </td>#}
+    {#            <td>{{ reservation.product }}</td>#}
+    {#            <td>{{ reservation.start_time }}</td>#}
+    {#            <td>{{ reservation.end_time }}</td>#}
+    {#            {% if user.administrator or user.master %}<td>{{ reservation.client.get_full_name}}</td>#}
+    {#            {% else %}<td>{{ reservation.master.get_full_name }}</td>{% endif %}#}
+    {#            {% if user.administrator %}<td>{{ reservation.master.get_full_name }}</td>{% endif %}#}
+    {#            <td>#}
+    {#            {% if user.master and reservation.status == 'Waiting to cancel' %}#}
+    {#                <form method="post" action="{% url 'view_reservation:update-status-reservations' pk=reservation.pk %}">{% csrf_token %}#}
+    {#                    <input class="hidden" type="hidden" name="status" value="Canceled" />#}
+    {#                    <input class="btn btn-danger" type="submit" value="Cancel" />#}
+    {#                </form>#}
+    {#            {% endif %}#}
+    {#            {% if not user.master and reservation.status != 'Waiting to cancel' %}#}
+    {#                <form method="post" action="{% url 'view_reservation:update-status-reservations' pk=reservation.pk %}">{% csrf_token %}#}
+    {#                    <input class="hidden" type="hidden" name="status" value="Waiting to cancel" />#}
+    {#                    <input class="btn btn-danger" type="submit" value="Cancel" />#}
+    {#                </form>#}
+    {#            {% endif %}#}
+    {#            </td>#}
+    {#        </tr>#}
+    {#        {% endfor %}#}
+    {#  </tbody>#}
+    {#</table>#}
+    {#{% if reservations.paginator.num_pages > 1 %}#}
+    {#    <nav aria-label="Page navigation">#}
+    {#      <ul class="pagination justify-content-center">#}
+    {#        <li class="page-item {% if not reservations.has_previous %}disabled{% endif %}">#}
+    {#          <a class="page-link" href="{{ request.path }}?page={% if reservations.has_previous %}{{ reservations.previous_page_number }}{% else %}1{% endif %}"><span aria-hidden="true">&laquo;</span><span class="sr-only">{% trans "Previous" %}</span></a>#}
+    {#        </li>#}
+    {#        {% for page in reservations.paginator.page_range %}#}
+    {#            <li class="page-item {% if reservations.number == page %}active{% endif %}"><a class="page-link" href="{{ request.path }}?page={{ page }}">{{ page }}</a></li>#}
+    {#        {% endfor %}#}
+    {#        <li class="page-item {% if not reservations.has_next %}disabled{% endif %}">#}
+    {#          <a class="page-link" href="{{ request.path }}?page={% if reservations.has_next %}{{ reservations.next_page_number }}{% else %}{{ reservations.paginator.num_pages }}{% endif %}"><span aria-hidden="true">&raquo;</span><span class="sr-only">{% trans "Next" %}</span></a>#}
+    {#        </li>#}
+    {#      </ul>#}
+    {#    </nav>#}
+    {#{% endif %}#}
+
 {% endblock content %}

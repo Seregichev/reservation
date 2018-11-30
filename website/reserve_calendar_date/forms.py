@@ -61,10 +61,15 @@ class ContactForm (forms.Form):
 class ReservationForm(forms.ModelForm):
     class Meta:
         model = Reservation
-        fields = ['master', 'client_name', 'client_email', 'client_phone', 'start_time', 'end_time', 'product', 'price', 'comment', 'status']
+        fields = ['master', 'client', 'client_name', 'client_email', 'client_phone', 'start_time', 'end_time', 'product', 'price', 'comment', 'status']
 
 
 class UpdateStatusForm(forms.ModelForm):
     class Meta:
         model = Reservation
         fields = ['status']
+
+class DetailForm(forms.ModelForm):
+    class Meta:
+        model = Reservation
+        fields = ['master', 'client', 'client_name', 'client_email', 'client_phone', 'start_time', 'end_time', 'product', 'price', 'comment']
