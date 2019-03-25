@@ -49,7 +49,9 @@ class ReserveCalendarTimePluginSetting(CMSPlugin):
                                              null=True, blank=True, max_length=256,)
     text_before_time_intervals = models.CharField(_('Text before time intervals'), default=_('2. Choose a free time'),
                                              null=True, blank=True, max_length=256,)
-    text_before_forms = models.CharField(_('Text before contact form'), default=_('3. Please, fill the contact form'),
+    text_before_masters = models.CharField(_('Text before masters'), default=_('3. Please, choose your master'),
+                                         null=True, blank=True, max_length=256, )
+    text_before_forms = models.CharField(_('Text before contact form'), default=_('4. Please, fill the contact form'),
                                                   null=True, blank=True, max_length=256, )
     text_submit_button = models.CharField(_('Text submit button'), default=_('Submit'),
                                                   null=False, blank=True, max_length=64, )
@@ -58,6 +60,8 @@ class ReserveCalendarTimePluginSetting(CMSPlugin):
     show_weeks_number = models.BooleanField(_('Show number of weeks'), default=False)
     show_year = models.BooleanField(_('Show year'), default=True)
     allow_choose_several_days = models.BooleanField(_('Allow choose several days'), default=False)
+    show_masters = models.BooleanField(_('Anyway show masters'), default=False,
+                                       help_text=_("Default the block of masters is shown if more then one"))
     busy_time_color = ColorField(_('Color busy time sell'), default='#dc3545', null=True, blank=True)
     free_time_color = ColorField(_('Color free time sell'), default='#28a745', null=True, blank=True)
     start_time = models.TimeField(_('Start time'), default='8:00:00')
@@ -100,11 +104,11 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
             'fields': ('masters',),
         }),
         (_('Text:'), {
-            'fields': ('text_before_calendars', 'text_before_time_intervals',
+            'fields': ('text_before_calendars', 'text_before_time_intervals', 'text_before_masters',
                        'text_before_forms', 'text_submit_button', 'text_style')
         }),
         (_('Show setting:'), {
-            'fields': ('num_of_month', ('show_weeks_number', 'show_year'),)
+            'fields': ('num_of_month', ('show_weeks_number', 'show_year'), 'show_masters',)
         }),
         (_('Time setting:'), {
             'fields': (('start_time', 'end_time',),'time_delta',)
@@ -296,7 +300,8 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
         context['created_list'] = created_list
         context['created_errors'] = created_errors
 
-
+        olga = Reservation.objects.filter(master__username ='olga').first()
+        print(olga.master.customuser.avatar.url)
         return context
 
 

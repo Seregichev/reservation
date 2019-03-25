@@ -9,7 +9,6 @@ from .models import Reservation
 from django.utils import timezone
 from .forms import ReservationForm, UpdateStatusForm, DetailForm
 
-
 class ListViewReservation(ListView):
     model = Reservation
     template_name = "apps/reservation_list_view.html"
@@ -37,6 +36,7 @@ class ListViewReservation(ListView):
         reservation_list = reservation_list.order_by(ordering)
 
         reservation_list = reservation_list.exclude(end_time__lt=timezone.now())
+        reservation_list = reservation_list.exclude(status='Canceled')
 
         # paginator = Paginator(reservation_list, self.paginate_by, orphans=3, allow_empty_first_page=True)
         #
@@ -78,6 +78,7 @@ class ChangeViewReservation(UpdateView):
 class UpdateStatusReservation(UpdateView):
     # Обновление статуса записи бронирования
     form_class = UpdateStatusForm
+    template_name = "apps/reservation_confirm_update_status.html"
     model = Reservation
     success_url = reverse_lazy('view_reservation:list-reservations')
 

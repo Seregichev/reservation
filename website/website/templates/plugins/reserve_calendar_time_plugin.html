@@ -6,6 +6,7 @@
     <style type="text/css">
         input[type="{% if instance.allow_choose_several_days %}checkbox{% else %}radio{% endif %}"].date-checkbox:checked + .date-btn { background-color: #207a3b; color: white; }
         input[type="checkbox"].time-checkbox:checked + .time-btn { background-color: #004c9f; color: white; }
+        input[type="radio"].master-radio:checked + .master-btn { background-color: #004c9f; color: white; }
         .input_error{
             border: 2px solid red;
         }
@@ -18,51 +19,17 @@
         .date-btn{
             min-width: 2.3em;
         }
-        .half1 {
-        background: rgb(233,130,130);
 
-        background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U5ODI4MiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2U5ODI4MiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUxJSIgc3RvcC1jb2xvcj0iIzg5ZTZhMyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM4OWU2YTMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-        background: -moz-linear-gradient(left, rgba(233,130,130,1) 0%, rgba(233,130,130,1) 25%, rgba(137,230,163,1) 26%, rgba(137,230,163,1) 100%);
-        background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(233,130,130,1)), color-stop(25%,rgba(233,130,130,1)), color-stop(26%,rgba(137,230,163,1)), color-stop(100%,rgba(137,230,163,1)));
-        background: -webkit-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 25%,rgba(137,230,163,1) 26%,rgba(137,230,163,1) 100%);
-        background: -o-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 25%,rgba(137,230,163,1) 26%,rgba(137,230,163,1) 100%);
-        background: -ms-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 25%,rgba(137,230,163,1) 26%,rgba(137,230,163,1) 100%);
-        background: linear-gradient(to right, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 25%,rgba(137,230,163,1) 26%,rgba(137,230,163,1) 100%);
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e98282', endColorstr='#89e6a3',GradientType=1 );
-        }
-        .half2 {
-        background: rgb(233,130,130);
-
-        background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U5ODI4MiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2U5ODI4MiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUxJSIgc3RvcC1jb2xvcj0iIzg5ZTZhMyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM4OWU2YTMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-        background: -moz-linear-gradient(left, rgba(233,130,130,1) 0%, rgba(233,130,130,1) 50%, rgba(137,230,163,1) 51%, rgba(137,230,163,1) 100%);
-        background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(233,130,130,1)), color-stop(50%,rgba(233,130,130,1)), color-stop(51%,rgba(137,230,163,1)), color-stop(100%,rgba(137,230,163,1)));
-        background: -webkit-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 50%,rgba(137,230,163,1) 51%,rgba(137,230,163,1) 100%);
-        background: -o-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 50%,rgba(137,230,163,1) 51%,rgba(137,230,163,1) 100%);
-        background: -ms-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 50%,rgba(137,230,163,1) 51%,rgba(137,230,163,1) 100%);
-        background: linear-gradient(to right, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 50%,rgba(137,230,163,1) 51%,rgba(137,230,163,1) 100%);
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e98282', endColorstr='#89e6a3',GradientType=1 );
-        }
-        .half3 {
-        background: rgb(233,130,130);
-
-        background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U5ODI4MiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2U5ODI4MiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUxJSIgc3RvcC1jb2xvcj0iIzg5ZTZhMyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM4OWU2YTMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-        background: -moz-linear-gradient(left, rgba(233,130,130,1) 0%, rgba(233,130,130,1) 75%, rgba(137,230,163,1) 76%, rgba(137,230,163,1) 100%);
-        background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(233,130,130,1)), color-stop(75%,rgba(233,130,130,1)), color-stop(76%,rgba(137,230,163,1)), color-stop(100%,rgba(137,230,163,1)));
-        background: -webkit-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 75%,rgba(137,230,163,1) 76%,rgba(137,230,163,1) 100%);
-        background: -o-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 75%,rgba(137,230,163,1) 76%,rgba(137,230,163,1) 100%);
-        background: -ms-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 75%,rgba(137,230,163,1) 76%,rgba(137,230,163,1) 100%);
-        background: linear-gradient(to right, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 75%,rgba(137,230,163,1) 76%,rgba(137,230,163,1) 100%);
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e98282', endColorstr='#89e6a3',GradientType=1 );
-        }
+        .owl-stage { margin:auto; }
     </style>
-    {#TODO: Заблокировать выбор занятого времени и полностью занятого дня, отобразить заливку фона ячейки дня по занятости#}
+
 {% endaddtoblock %}
 <div class="{{ instance.tag_class }}" style="{{ instance.tag_style }}">
     <form class="form align-items-center" action="" method="post">
         {% csrf_token %}
         {% if created_errors %}
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                <strong>Ошибка!</strong>
+                <strong>{% trans 'Error' %}</strong>
                 {% for error in created_errors %}
                 <p>{{ error }}</p>
                 {% endfor %}
@@ -87,26 +54,26 @@
 
             </div>
         {% endif %}
-        <div class="row justify-content-md-center" style="{{ instance.text_style }}">
+        <div class="row justify-content-center" style="{{ instance.text_style }}">
             <h6>{{ instance.text_before_calendars }}</h6>
         </div>
         <div class="row align-items-center {% if error_not_dates or error_not_time_delta %}input_error{% endif %}">
-            <div class="col-1">
+            <div class="col-md-1 d-none d-md-block">
                 <a class="owl-carousel-control-prev" title="{% trans 'Back' %}">
                     <img src="{% static 'owl.carousel/img/m-l.png' %}">
                 </a>
             </div>
-            <div class="owl-carousel col-10">
+            <div class="owl-carousel col-md-10">
                 {% for day_in_this_month, name_month, the_year, num_month in months %}
                     <div>
-                        <table class="table-condensed table-striped table-bordered table-sm">
+                        <table class="table-condensed table-striped table-sm">
                             <thead align="center">
-                                <tr>
+                                <tr class="table-bordered">
                                   <th colspan="{% if instance.show_weeks_number %}8{% else %}7{% endif %}">
                                     <a href="" class="h6 font-weight-bold">{{ name_month }} {% if instance.show_year %}{{ the_year }}{% endif %}</a>
                                   </th>
                                 </tr>
-                                <tr>
+                                <tr class="table-bordered">
                                     {% if instance.show_weeks_number %}
                                         <th class="font-weight-light">&nbsp</th>
                                     {% endif %}
@@ -142,7 +109,7 @@
                     </div>
                 {% endfor %}
             </div>
-            <div class="col-1">
+            <div class="col-md-1 d-none d-md-block">
                 <a class="owl-carousel-control-next" href="#" title="{% trans 'Next' %}">
                     <img src="{% static 'owl.carousel/img/m-n.png' %}">
                 </a>
@@ -153,10 +120,10 @@
         </div>
 
         {% if time %}
-            <div class="row justify-content-md-center" style="{{ instance.text_style }}">
+            <div class="row justify-content-center" style="{{ instance.text_style }}">
                 <h6>{{ instance.text_before_time_intervals }}</h6>
             </div>
-            <div class="row justify-content-md-center {% if error_not_time_delta or error_not_dates %}input_error{% endif %}">
+            <div class="row justify-content-center {% if error_not_time_delta or error_not_dates %}input_error{% endif %}">
                 {% for title, e, start_time, next_time in time %}
                         <label>
                             <input style="display:none" class="time-checkbox" type="checkbox" name="time_period" value="{{ start_time }};{{ next_time }}"/>
@@ -167,12 +134,38 @@
                     <div class="invalid-feedback  text-center">{{ error_not_time_delta }}</div>
                 {% endif %}
             </div>
-
         {% endif %}
-        <div class="row justify-content-md-center" style="{{ instance.text_style }}">
+
+        {% if instance.masters.all|length > 1 or instance.show_masters %}
+            <div class="row justify-content-center" style="{{ instance.text_style }}">
+                <h6>{{ instance.text_before_masters }}</h6>
+            </div>
+            <div class="owl-carousel owl-stage justify-content-center">
+                {% for master in instance.masters.all %}
+                <div class="card text-center mb-3" style="max-width: 16rem;">
+                    <img class="card-img-top" src="{{ master.customuser.avatar.url }}" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ master.first_name }} {{ master.last_name }}</h5>
+                    </div>
+                    <div class="card-footer" style="{% if instance.masters.all|length <= 1 %}display:none{% endif %}">
+                        <label>
+                            <input class="master-radio" type="radio" name="master" value="{{ master.username }}" style="display:none" {% if instance.masters.all|length <= 1 %}checked{% endif %}/>
+                            <div class="col col-md-auto btn master-btn btn-outline-primary">{% trans 'Choose' %}</div>
+                        </label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+                {% for master in instance.masters.all %}
+                    <input type="hidden" name="master" value="{{ master.username }}" readonly="readonly"/>
+                {% endfor %}
+        {% endif %}
+
+        <div class="row justify-content-center" style="{{ instance.text_style }}">
             <h6>{{ instance.text_before_forms }}</h6>
         </div>
-        <div class="col-8 offset-2">
+        <div class="col-md-8 offset-md-2">
             {% for field in form %}
                 <div class="form-group row">
                     <label class="sr-only" for="{{ field.id }}">{{ field.label }} :</label>
@@ -196,13 +189,13 @@
                 <button type="submit" class="btn btn-primary">{{ instance.text_submit_button }}</button>
             </div>
         </div>
-    {% for master in instance.masters.all %}
-    <input type="hidden" name="master" value="{{ master.username }}" readonly="readonly"/>
-    {% endfor %}
     </form>
 </div>
-
-{#TODO: Вывести блок выбора мастеров если их больше одного#}
+{# TODO: Создать приложение "услуги" #}
+{# TODO: Добавить в юзера МаниТуМани поле выбора "услуг" #}
+{# TODO: В плагине бронирования определять свободность дней и времени из наличия свободных мастеров по данной услуге #}
+{# TODO: Поле МаниТуМани у юзера вывести как список чебоксов #}
+{# TODO: Убрать из плагина бронирования возможность выбора мастера #}
 
 {% addtoblock "js" %}
     <script type="text/javascript" src="{% static 'owl.carousel/dist/owl.carousel.min.js' %}"></script>
@@ -211,17 +204,33 @@
 $(document).ready(function () {
     (function ($) {
         var owl = $('.owl-carousel');
-
         owl.owlCarousel({
             loop:false,
             margin:20,
-            nav:false,
-            rewind: true,
-            autoWidth:true,
-            items:{{ instance.num_of_month }},
-            {% if instance.num_of_month <= 1 %}
-                center: true,
-            {% endif %}
+            responsiveClass:true,
+            responsive:{
+                0:{
+                    items:1,
+                    nav:false,
+                    rewind:false,
+                    autoWidth:true,
+                    center: false,
+                },
+                600:{
+                    items:3,
+                    nav:false,
+                    rewind:false,
+                    autoWidth:true,
+                    center: false,
+                },
+                1000:{
+                    items:5,
+                    nav:false,
+                    rewind:false,
+                    autoWidth:true,
+                    center: false,
+                }
+            }
         });
 
         // Custom Navigation Events

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load cms_tags staticfiles sekizai_tags menu_tags thumbnail i18n %}
+<title>{% trans "Reservation" %} {{ reservation.number }}</title>
+
+{% block content %}
+<form method="post" action="{% url 'view_reservation:update-status-reservations' pk=reservation.pk %}">{% csrf_token %}
+    {% if reservation.status == 'New'%}
+    <p>{% trans "Are you sure you want to accepted status" %} "{{ object }}"?</p>
+    <input class="hidden" type="hidden" name="status" value="Accepted" />
+    {% elif reservation.status == 'Waiting to cancel' %}
+    <p>{% trans "Are you sure you want to cancel" %} "{{ object }}"?</p>
+    <input class="hidden" type="hidden" name="status" value="Canceled" />
+    {% endif %}
+    <input class="btn btn-primary" type="submit" value="{% trans "Confirm" %}" />
+</form>
+{% endblock content %}
