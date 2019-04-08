@@ -8,6 +8,12 @@ from django.core.paginator import PageNotAnInteger
 from .models import Reservation
 from django.utils import timezone
 from .forms import ReservationForm, UpdateStatusForm, DetailForm
+from django.http import JsonResponse
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.db.models import Sum
+from goods.models import Product
+import datetime
 
 class ListViewReservation(ListView):
     model = Reservation
@@ -35,7 +41,7 @@ class ListViewReservation(ListView):
         ordering = self.request.GET.get('ordering', 'start_time')
         reservation_list = reservation_list.order_by(ordering)
 
-        reservation_list = reservation_list.exclude(end_time__lt=timezone.now())
+        reservation_list = reservation_list.exclude(end_datetime__lt=timezone.now())
         reservation_list = reservation_list.exclude(status='Canceled')
 
         # paginator = Paginator(reservation_list, self.paginate_by, orphans=3, allow_empty_first_page=True)
@@ -88,3 +94,24 @@ class DeleteReservation(DeleteView):
     model = Reservation
     template_name = "apps/reservation_confirm_delete.html"
     success_url = reverse_lazy('view_reservation:list-reservations')
+
+
+def check_reservation_time(request):
+    return_dict = dict()
+    if settings.DEBUG:
+        print(request.POST)
+
+    if request.POST:
+        products = request.POST['products'] or None
+        date = request.POST['date'] or None
+        date = datetime.datetime.strptime(date, '%x')
+        products = [int(n) for n in products.split(',')[:-1]]
+        busy_time_list = User.objects.filter(customuser__products__in=Product.objects.filter(id__in=products),
+                                             reserve_master__start_date=date) \
+            .values_list('reserve_master__start_time', 'reserve_master__end_time') \
+            .order_by('reserve_master__start_datetime')
+
+        return_dict['busy_time_list'] = [time for time in busy_time_list]
+        print(return_dict['busy_time_list'])
+
+    return JsonResponse(return_dict)

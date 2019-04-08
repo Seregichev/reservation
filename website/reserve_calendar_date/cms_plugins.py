@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django import forms
 from cms.plugin_base import CMSPluginBase
 from cms.plugin_pool import plugin_pool
 from cms.models import CMSPlugin
@@ -15,11 +16,13 @@ import datetime
 import locale
 from dateutil.relativedelta import relativedelta
 from colorfield.fields import ColorField
-locale.setlocale(locale.LC_NUMERIC, "ru_RU")
 
 from .models import Reservation
 from .functions import reservation_objects_create
+from goods.models import Product
+from django.db.models import Count, Min, Sum, Avg
 
+locale.setlocale(locale.LC_NUMERIC, "ru_RU")
 
 CHOICES_TIME_DELTA = (
         (datetime.timedelta(minutes=15), _('15 minutes')),
@@ -43,7 +46,7 @@ CHOICES_TIME_DELTA = (
 # Плагин приветсвия
 @python_2_unicode_compatible
 class ReserveCalendarTimePluginSetting(CMSPlugin):
-    masters = models.ManyToManyField(User, verbose_name=_('Choice masters:'), related_name="reserv_masters_plugin",
+    products = models.ManyToManyField(Product, verbose_name=_('Choice products:'), related_name="product_reserve_plugin",
                                      blank=False, )
     text_before_calendars = models.CharField(_('Text before calendars'), default=_('1. Select a free day of the month'),
                                              null=True, blank=True, max_length=256,)
@@ -77,7 +80,7 @@ class ReserveCalendarTimePluginSetting(CMSPlugin):
         return self.get_title()
 
     def copy_relations(self, oldinstance):
-        self.masters = oldinstance.masters.all()
+        self.products = oldinstance.products.all()
 
     def clean(self):
         if self.end_time < self.start_time:
@@ -90,6 +93,10 @@ class ReserveCalendarTimePluginSetting(CMSPlugin):
             if self.allow_choose_several_days:
                 raise ValidationError(_("Can't select 'Allow choose several days' when Time Delta don't equal a day"))
 
+    def masters(self):
+        masters = User.objects.filter(customuser__products__in=self.products.all())
+        return masters
+
 
 @plugin_pool.register_plugin
 class ReserveCalendarTimePlugin(CMSPluginBase):
@@ -101,7 +108,7 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
 
     fieldsets = (
         (None, {
-            'fields': ('masters',),
+            'fields': ('products',),
         }),
         (_('Text:'), {
             'fields': ('text_before_calendars', 'text_before_time_intervals', 'text_before_masters',
@@ -126,6 +133,10 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
             'fields': ('tag_class', 'tag_style',)
         }),
     )
+    formfield_overrides = {
+        models.ManyToManyField: {'widget': forms.CheckboxSelectMultiple(attrs={"style":"max-height: 5rem; overflow: scroll;"})},
+    }
+
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == "masters":
@@ -157,7 +168,6 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
         form = ContactForm(request.POST or None, auto_id=True,
                            initial={'name': inital_name, 'phone_number': inital_phone_number, 'email': inital_email, })
 
-
         if request.method == 'POST' and form.is_valid():
             # Получаем переменные из формы
             dates = request.POST.getlist('date') or list()
@@ -166,8 +176,8 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
             email = request.POST['email'] or None
             phone_number = request.POST['phone_number'] or None
             comment = request.POST['comment'] or None
-            masters = request.POST.getlist('master') or list()
-
+            # products = request.POST.getlist('products') or list()
+            masters = request.POST.getlist('masters') or list()
             client = None
             if request.user.is_authenticated:
                 client = request.user
@@ -188,23 +198,23 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
                     for date in dates:
 
                         # Определяем дефолтное время начала и время конца
-                        start_time = datetime.datetime.strptime(date + ' ' + str(instance.start_time), '%x %H:%M:%S')
-                        end_time = datetime.datetime.strptime(date + ' ' + str(instance.end_time), '%x %H:%M:%S')
+                        start_datetime = datetime.datetime.strptime(date + ' ' + str(instance.start_time), '%x %H:%M:%S')
+                        end_datetime = datetime.datetime.strptime(date + ' ' + str(instance.end_time), '%x %H:%M:%S')
 
                         # Если пользователь выбрал время начала и конца
                         if time_period:
                             # Проходим циклом каждое выбранное пользователем время и создаем резервирование
                             for time in time_period:
                                 time = time.split(';')
-                                start_time = datetime.datetime.strptime(date + ' ' + time[0], '%x %H:%M')
-                                end_time = datetime.datetime.strptime(date + ' ' + time[1], '%x %H:%M')
+                                start_datetime = datetime.datetime.strptime(date + ' ' + time[0], '%x %H:%M:%S')
+                                end_datetime = datetime.datetime.strptime(date + ' ' + time[1], '%x %H:%M:%S')
 
-                                start_time = timezone.make_aware(start_time)
-                                end_time = timezone.make_aware(end_time)
+                                start_datetime = timezone.make_aware(start_datetime)
+                                end_datetime = timezone.make_aware(end_datetime)
 
                                 created, error = reservation_objects_create(Object=Reservation,
-                                                                     master=master, start_time=start_time,
-                                                                     end_time=end_time, client=client,
+                                                                     master=master, start_datetime=start_datetime,
+                                                                     end_datetime=end_datetime, client=client,
                                                                      client_name = name, client_email = email,
                                                                      client_phone = phone_number, comment = comment,
                                                                      )
@@ -236,6 +246,10 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
                 if not time_period and instance.time_delta < datetime.timedelta(hours=24):
                     error_not_time_delta = _('Please, select time or times in the panel')
 
+        busy_date_list = User.objects.filter(customuser__products__in=instance.products.all(),
+                                             reserve_master__start_datetime__gte=timezone.now()) \
+            .values('reserve_master__start_date').annotate(total_duration=Sum('reserve_master__duration_time')) \
+            .order_by('reserve_master__start_date').values_list('reserve_master__start_date', 'total_duration')
 
         # --- Формирование календаря для вывода во фронтенде ---
         months = ()  # Инициализируем список выборки по месяцам
@@ -254,7 +268,17 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
 
                 date = datetime.date(start_month.year, start_month.month, this_day)  # Получаем текущую дату
                 number_of_week = datetime.date(start_month.year, start_month.month, this_day).strftime("%V")
-                day_in_this_month += ((day, day_of_week, number_of_week, date.strftime('%x')),)  # и получаем список для дня
+                busy = 'success'
+
+                for start_date, sum_duration in busy_date_list:
+                    if start_date == date:
+                        busy = sum_duration/(datetime.timedelta(hours=instance.end_time.hour, minutes=instance.end_time.minute)-datetime.timedelta(hours=instance.start_time.hour, minutes=instance.start_time.minute))*100
+                        if busy >= 99: busy = 'danger'
+                        elif 65 <= busy < 99: busy = 'success half3'
+                        elif 35 <= busy < 65: busy = 'success half2'
+                        elif 5 <= busy < 35: busy = 'success half1'
+
+                day_in_this_month += ((day, day_of_week, number_of_week, date.strftime('%x'), busy,),)  # и получаем список для дня
 
             name_month = _(start_month.strftime('%B'))  # получаем название текущего месяца в переводе на локаль
             the_year = start_month.year  # Получаем текущий год
@@ -299,9 +323,7 @@ class ReserveCalendarTimePlugin(CMSPluginBase):
 
         context['created_list'] = created_list
         context['created_errors'] = created_errors
-
-        olga = Reservation.objects.filter(master__username ='olga').first()
-        print(olga.master.customuser.avatar.url)
+        print(instance.products.all())
         return context
 
 

@@ -37,7 +37,7 @@ urlpatterns += staticfiles_urlpatterns()
 # note the django CMS URLs included via i18n_patterns
 urlpatterns += i18n_patterns(
     url(r'^admin/', include(admin.site.urls)),
-    # url(r'^reserve/', include('reserve_calendar_date.urls', namespace='polls')),
+    url(r'^reserve/', include('reserve_calendar_date.urls', namespace='reserve')),
     url(r'^', include('cms.urls')),
     prefix_default_language=False) \
   + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \

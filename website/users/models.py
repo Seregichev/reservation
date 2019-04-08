@@ -7,6 +7,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from weekday_field import fields as weekday_field
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from goods.models import Product
 
 @python_2_unicode_compatible
 class Company(models.Model):
@@ -41,6 +42,9 @@ class CustomUser(User):
 
     master = models.BooleanField(blank=True, default=False, verbose_name=_('Master'),
                                  help_text=_('Check if the user can be a master'))
+
+    products = models.ManyToManyField(Product, verbose_name=_('Choice products:'), related_name="products",
+                                     blank=False, )
 
     administrator = models.BooleanField(blank=True, default=False, verbose_name=_('Administrator'),
                                  help_text=_('Check if the user can be a administrator'))

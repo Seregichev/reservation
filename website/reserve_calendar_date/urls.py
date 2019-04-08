@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/update_status/', views.UpdateStatusReservation.as_view(), name='update-status-reservations'),
     url(r'^(?P<pk>\d+)/update/', views.ChangeViewReservation.as_view(), name='change-reservations'),
     url(r'^(?P<pk>\d+)/delete/', views.DeleteReservation.as_view(), name='delete-reservations'),
+    url(r'^check_reservation_time/', views.check_reservation_time, name='check-reservation-time'),
 ]

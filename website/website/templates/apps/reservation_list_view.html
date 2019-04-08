@@ -35,8 +35,8 @@
                                         id: '{{ reservation.number }}',
                                         title: "{{ reservation.client_name}}",
                                         url: '{% if reservation.status == 'New' or reservation.status == 'Waiting to cancel' %}{% url 'view_reservation:update-status-reservations' pk=reservation.pk %}{% else %}{{ reservation.get_absolute_url }}{% endif %}',
-                                        start: '{{ reservation.start_time|date:"Y-m-d H:i:s" }}',
-                                        end: '{{ reservation.end_time|date:"Y-m-d H:i:s" }}',
+                                        start: '{{ reservation.start_datetime|date:"Y-m-d H:i:s" }}',
+                                        end: '{{ reservation.end_datetime|date:"Y-m-d H:i:s" }}',
                                         description: 'This is a cool event',
 
                                         {% if reservation.status == 'New' %}

@@ -8,6 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 from .models import Company, CustomUser
 from weekday_field import fields as weekday_field
 from weekday_field.widgets import ToggleCheckboxes
+from django.db.models import ManyToManyField
+from django.forms import CheckboxSelectMultiple
 
 class CustomUserChangeForm(UserChangeForm):
     u"""Обеспечивает правильный функционал для поля с паролем и показ полей профиля."""
@@ -41,6 +43,7 @@ class CustomUserAdmin(UserAdmin):
             )}),
         (_('Position of job'), {'fields': ('master', 'administrator',)}),
         (_('Work time info'), {'fields': ('weekdays',)}),
+        (_('Goods'), {'fields': ('products',)}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
         (None, {'fields': ('groups',)}),
@@ -49,6 +52,8 @@ class CustomUserAdmin(UserAdmin):
 
     formfield_overrides = {
         weekday_field.WeekdayField: {'widget': ToggleCheckboxes},
+        ManyToManyField: {
+            'widget': CheckboxSelectMultiple(attrs={"style": "max-height: 10rem; overflow: scroll;"})},
     }
 
 

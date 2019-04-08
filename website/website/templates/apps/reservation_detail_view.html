@@ -10,8 +10,8 @@
     <p class="text-center">{% trans "Client Name" %}: {{ reservation.client_name }}</p>
     <p class="text-center">{% trans "Client Email" %}: {{ reservation.client_email }}</p>
     <p class="text-center">{% trans "Client Phone" %}: {{ reservation.client_phone }}</p>
-    <p class="text-center">{% trans "Start Time" %}: {{ reservation.start_time }}</p>
-    <p class="text-center">{% trans "Duration" %}: {{ reservation.duration_time }}</p>
+    <p class="text-center">{% trans "Start Time" %}: {{ reservation.start_datetime }}</p>
+    <p class="text-center">{% trans "Duration" %}: {{ reservation.duration_datetime }}</p>
     <p class="text-center">{% trans "Product" %}: {{ reservation.product }}</p>
     <p class="text-center">{% trans "Price" %}: {{ reservation.price }}</p>
     <p class="text-center">{% trans "Comment" %}: {{ reservation.comment }}</p>

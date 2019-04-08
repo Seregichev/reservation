@@ -1,1 +1,1 @@
-default_app_config = "reserve_calendar_date.apps.ReservCalendarDateConfig"
+default_app_config = "reserve_calendar_date.apps.ReserveCalendarDateConfig"

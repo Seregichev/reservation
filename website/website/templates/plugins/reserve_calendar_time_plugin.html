@@ -1,12 +1,9 @@
-{% load i18n cms_tags sekizai_tags static staticfiles%}
+{% load i18n cms_tags sekizai_tags static staticfiles reserve_extras%}
 
 {% addtoblock "css" %}
     <link rel="stylesheet" href="{% static 'owl.carousel/dist/assets/owl.carousel.min.css' %}">
 
     <style type="text/css">
-        input[type="{% if instance.allow_choose_several_days %}checkbox{% else %}radio{% endif %}"].date-checkbox:checked + .date-btn { background-color: #207a3b; color: white; }
-        input[type="checkbox"].time-checkbox:checked + .time-btn { background-color: #004c9f; color: white; }
-        input[type="radio"].master-radio:checked + .master-btn { background-color: #004c9f; color: white; }
         .input_error{
             border: 2px solid red;
         }
@@ -19,13 +16,92 @@
         .date-btn{
             min-width: 2.3em;
         }
-
         .owl-stage { margin:auto; }
+
+        .half1 {
+            background: rgb(233,130,130);
+            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U5ODI4MiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2U5ODI4MiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUxJSIgc3RvcC1jb2xvcj0iIzg5ZTZhMyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM4OWU2YTMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+            background: -moz-linear-gradient(left, rgba(233,130,130,1) 0%, rgba(233,130,130,1) 25%, rgba(137,230,163,1) 26%, rgba(137,230,163,1) 100%);
+            background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(233,130,130,1)), color-stop(25%,rgba(233,130,130,1)), color-stop(26%,rgba(137,230,163,1)), color-stop(100%,rgba(137,230,163,1)));
+            background: -webkit-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 25%,rgba(137,230,163,1) 26%,rgba(137,230,163,1) 100%);
+            background: -o-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 25%,rgba(137,230,163,1) 26%,rgba(137,230,163,1) 100%);
+            background: -ms-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 25%,rgba(137,230,163,1) 26%,rgba(137,230,163,1) 100%);
+            background: linear-gradient(to right, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 25%,rgba(137,230,163,1) 26%,rgba(137,230,163,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e98282', endColorstr='#89e6a3',GradientType=1 );
+            color: black;
+        }
+        .half2 {
+            background: rgb(233,130,130);
+            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U5ODI4MiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2U5ODI4MiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUxJSIgc3RvcC1jb2xvcj0iIzg5ZTZhMyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM4OWU2YTMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+            background: -moz-linear-gradient(left, rgba(233,130,130,1) 0%, rgba(233,130,130,1) 50%, rgba(137,230,163,1) 51%, rgba(137,230,163,1) 100%);
+            background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(233,130,130,1)), color-stop(50%,rgba(233,130,130,1)), color-stop(51%,rgba(137,230,163,1)), color-stop(100%,rgba(137,230,163,1)));
+            background: -webkit-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 50%,rgba(137,230,163,1) 51%,rgba(137,230,163,1) 100%);
+            background: -o-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 50%,rgba(137,230,163,1) 51%,rgba(137,230,163,1) 100%);
+            background: -ms-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 50%,rgba(137,230,163,1) 51%,rgba(137,230,163,1) 100%);
+            background: linear-gradient(to right, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 50%,rgba(137,230,163,1) 51%,rgba(137,230,163,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e98282', endColorstr='#89e6a3',GradientType=1 );
+            color: black;
+        }
+        .half3 {
+            background: rgb(233,130,130);
+            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U5ODI4MiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2U5ODI4MiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUxJSIgc3RvcC1jb2xvcj0iIzg5ZTZhMyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM4OWU2YTMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+            background: -moz-linear-gradient(left, rgba(233,130,130,1) 0%, rgba(233,130,130,1) 75%, rgba(137,230,163,1) 76%, rgba(137,230,163,1) 100%);
+            background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(233,130,130,1)), color-stop(75%,rgba(233,130,130,1)), color-stop(76%,rgba(137,230,163,1)), color-stop(100%,rgba(137,230,163,1)));
+            background: -webkit-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 75%,rgba(137,230,163,1) 76%,rgba(137,230,163,1) 100%);
+            background: -o-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 75%,rgba(137,230,163,1) 76%,rgba(137,230,163,1) 100%);
+            background: -ms-linear-gradient(left, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 75%,rgba(137,230,163,1) 76%,rgba(137,230,163,1) 100%);
+            background: linear-gradient(to right, rgba(233,130,130,1) 0%,rgba(233,130,130,1) 75%,rgba(137,230,163,1) 76%,rgba(137,230,163,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e98282', endColorstr='#89e6a3',GradientType=1 );
+            color: black;
+        }
+
+        input[type="{% if instance.allow_choose_several_days %}checkbox{% else %}radio{% endif %}"].date-checkbox:checked + .date-btn {
+            background: rgb(20,81,129);
+            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzE0NTE4MSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxNDUxODEiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+            background: -moz-linear-gradient(left, rgba(20,81,129,1) 0%, rgba(20,81,129,1) 100%);
+            background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(20,81,129,1)), color-stop(100%,rgba(20,81,129,1)));
+            background: -webkit-linear-gradient(left, rgba(20,81,129,1) 0%,rgba(20,81,129,1) 100%);
+            background: -o-linear-gradient(left, rgba(20,81,129,1) 0%,rgba(20,81,129,1) 100%);
+            background: -ms-linear-gradient(left, rgba(20,81,129,1) 0%,rgba(20,81,129,1) 100%);
+            background: linear-gradient(to right, rgba(20,81,129,1) 0%,rgba(20,81,129,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#145181', endColorstr='#145181',GradientType=1 );
+            color: #F5F5F5 !important;
+            border-color: rgba(20,81,129,1);
+            }
+
+        input[type="checkbox"].time-checkbox:checked + .time-btn {
+            background: rgb(20,81,129);
+            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzE0NTE4MSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxNDUxODEiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+            background: -moz-linear-gradient(left, rgba(20,81,129,1) 0%, rgba(20,81,129,1) 100%);
+            background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(20,81,129,1)), color-stop(100%,rgba(20,81,129,1)));
+            background: -webkit-linear-gradient(left, rgba(20,81,129,1) 0%,rgba(20,81,129,1) 100%);
+            background: -o-linear-gradient(left, rgba(20,81,129,1) 0%,rgba(20,81,129,1) 100%);
+            background: -ms-linear-gradient(left, rgba(20,81,129,1) 0%,rgba(20,81,129,1) 100%);
+            background: linear-gradient(to right, rgba(20,81,129,1) 0%,rgba(20,81,129,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#145181', endColorstr='#145181',GradientType=1 );
+            color: #F5F5F5 !important;
+            border-color: rgba(20,81,129,1);
+            }
+
+        input[type="radio"].master-radio:checked + .master-btn {
+            background: rgb(20,81,129);
+            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzE0NTE4MSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxNDUxODEiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+            background: -moz-linear-gradient(left, rgba(20,81,129,1) 0%, rgba(20,81,129,1) 100%);
+            background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(20,81,129,1)), color-stop(100%,rgba(20,81,129,1)));
+            background: -webkit-linear-gradient(left, rgba(20,81,129,1) 0%,rgba(20,81,129,1) 100%);
+            background: -o-linear-gradient(left, rgba(20,81,129,1) 0%,rgba(20,81,129,1) 100%);
+            background: -ms-linear-gradient(left, rgba(20,81,129,1) 0%,rgba(20,81,129,1) 100%);
+            background: linear-gradient(to right, rgba(20,81,129,1) 0%,rgba(20,81,129,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#145181', endColorstr='#145181',GradientType=1 );
+            color: #F5F5F5 !important;
+            border-color: rgba(20,81,129,1);
+            }
+
     </style>
 
 {% endaddtoblock %}
 <div class="{{ instance.tag_class }}" style="{{ instance.tag_style }}">
-    <form class="form align-items-center" action="" method="post">
+    <form class="form align-items-center" id="form-{{ instance.id }}" action="" method="post">
         {% csrf_token %}
         {% if created_errors %}
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -63,7 +139,7 @@
                     <img src="{% static 'owl.carousel/img/m-l.png' %}">
                 </a>
             </div>
-            <div class="owl-carousel col-md-10">
+            <div class="date-block owl-carousel col-md-10">
                 {% for day_in_this_month, name_month, the_year, num_month in months %}
                     <div>
                         <table class="table-condensed table-striped table-sm">
@@ -84,7 +160,7 @@
                             </thead>
                             <tbody align="center">
                                 <tr>
-                                    {% for day, day_of_week, number_of_week, date in day_in_this_month %}
+                                    {% for day, day_of_week, number_of_week, date, busy in day_in_this_month %}
                                         {% if day_of_week == 0 and instance.show_weeks_number %}
                                             <td class="font-weight-light">
                                             {{ number_of_week }}
@@ -93,8 +169,8 @@
                                         <td class="font-weight-normal">
                                             {% if day > 0 %}
                                                 <label>
-                                                    <input class="date-checkbox" type="{% if instance.allow_choose_several_days %}checkbox{% else %}radio{% endif %}" name="date" value="{{ date }}" style="display:none" {% if day < today and num_month == 1 %} disabled {% endif %}/>
-                                                    <div class="btn date-btn btn-sm btn-outline-{% if day == today and num_month == 1 %}warning{% endif %}{% if day > today or num_month > 1 %}success{% endif %}{% if day < today and num_month == 1 %}danger{% endif %}{% if day < today and num_month == 1 %} disabled{% endif %}">{{ day }}</div>
+                                                    <input class="date-checkbox" type="{% if instance.allow_choose_several_days %}checkbox{% else %}radio{% endif %}" name="date" value="{{ date }}" style="display:none" {% if day < today and num_month == 1 or busy == 'danger'%} disabled {% endif %}/>
+                                                    <div class="btn date-btn btn-sm btn-outline-{% if day == today and num_month == 1 %}warning{% elif day > today or num_month > 1 %}{{ busy }}{% elif day < today and num_month == 1 %}danger{% elif day < today and num_month == 1 %} disabled{% endif %}">{{ day }}</div>
                                                 </label>
                                             {% endif %}
                                         </td>
@@ -123,10 +199,10 @@
             <div class="row justify-content-center" style="{{ instance.text_style }}">
                 <h6>{{ instance.text_before_time_intervals }}</h6>
             </div>
-            <div class="row justify-content-center {% if error_not_time_delta or error_not_dates %}input_error{% endif %}">
+            <div class="row time-block justify-content-center {% if error_not_time_delta or error_not_dates %}input_error{% endif %}">
                 {% for title, e, start_time, next_time in time %}
                         <label>
-                            <input style="display:none" class="time-checkbox" type="checkbox" name="time_period" value="{{ start_time }};{{ next_time }}"/>
+                            <input style="display:none" class="time-checkbox" type="checkbox" name="time_period" value="{% format_time start_time "%H:%M:%S" %};{% format_time next_time "%H:%M:%S" %}"/>
                             <div style="margin: 0.5em;" class="col col-md-auto time-btn btn btn-outline-primary">{{ title }}</div>
                         </label>
                 {% endfor %}
@@ -149,7 +225,7 @@
                     </div>
                     <div class="card-footer" style="{% if instance.masters.all|length <= 1 %}display:none{% endif %}">
                         <label>
-                            <input class="master-radio" type="radio" name="master" value="{{ master.username }}" style="display:none" {% if instance.masters.all|length <= 1 %}checked{% endif %}/>
+                            <input class="master-radio" type="radio" name="masters" value="{{ master.username }}" style="display:none" {% if instance.masters.all|length <= 1 %}checked{% endif %}/>
                             <div class="col col-md-auto btn master-btn btn-outline-primary">{% trans 'Choose' %}</div>
                         </label>
                     </div>
@@ -191,8 +267,6 @@
         </div>
     </form>
 </div>
-{# TODO: Создать приложение "услуги" #}
-{# TODO: Добавить в юзера МаниТуМани поле выбора "услуг" #}
 {# TODO: В плагине бронирования определять свободность дней и времени из наличия свободных мастеров по данной услуге #}
 {# TODO: Поле МаниТуМани у юзера вывести как список чебоксов #}
 {# TODO: Убрать из плагина бронирования возможность выбора мастера #}
@@ -247,6 +321,41 @@ $('.input_error').change(function() {// Обработчик события из
     $(this).removeClass('input_error'); //удаляем отображение border поля ввода
     error_feedback = $(this).parent().find('.invalid-feedback'); // находи элемент вывода сообщений об ошибке
     $(error_feedback).css("display", "none");// скрываем элемент вывода сообщений об ошбике
+});
+
+
+
+$('.date-block').change(function() {
+    var data = {};
+    data["csrfmiddlewaretoken"] = $('.form [name="csrfmiddlewaretoken"]').val();
+    data["products"] = '{% for product in instance.products.all %}{{ product.id }},{% endfor %}';
+    data["date"] = $('input[name=date]:checked', '#form-{{ instance.id }}').val();
+    $.ajax({
+        url: "{% url 'reserve:check-reservation-time' %}",
+        type: 'POST',
+        data: data,
+        cache: true,
+        success:function (receive) {
+                busy_time_list = receive['busy_time_list'];
+                $('.time-checkbox').each(function() {
+                    this_time_checkbox = $(this);
+                    this_time_checkbox.parent().attr('style', '');
+                    this_time_checkbox_value = this_time_checkbox.val().split(';');
+                    $(busy_time_list).each(function () {
+                        if (JSON.stringify(this) == JSON.stringify(this_time_checkbox_value)) {
+                            this_time_checkbox.parent().attr('style', 'display:none');
+                        }
+                    });
+
+                });
+
+
+            },
+                error: function () {
+                    console.log("ERROR ajax POST");
+
+                }
+        });
 });
 
 </script>{% endaddtoblock %}
